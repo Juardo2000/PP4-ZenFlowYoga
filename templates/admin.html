@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧘</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/header-footer.css">
+    <link rel="stylesheet" href="static/css/admin.css">
+    <link rel="stylesheet" href="static/css/alerts.css">
+    <title>Panel de Administración - ZenFlow Yoga</title>
+</head>
+<body>
+    <header></header>
+
+    <div class="dashboard">
+        <!-- Header -->
+        <div class="dashboard-header card">
+            <div class="welcome-box">
+                <h1>Panel de Administración</h1>
+                <p>Bienvenido de nuevo, <strong>{{ nombre }}</strong></p>
+                <div class="admin-badge">
+                    <i class="fas fa-crown"></i>
+                    Administrador
+                </div>
+            </div>
+            <div>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Volver al Inicio
+                </a>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">
+                        <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card card">
+                <div class="stat-number">{{ estadisticas.total_usuarios }}</div>
+                <div class="stat-label">Total Usuarios</div>
+                <i class="fas fa-users stat-icon"></i>
+            </div>
+            <div class="stat-card card">
+                <div class="stat-number">{{ estadisticas.total_instructores }}</div>
+                <div class="stat-label">Instructores Activos</div>
+                <i class="fas fa-chalkboard-teacher stat-icon"></i>
+            </div>
+            <div class="stat-card card">
+                <div class="stat-number">{{ estadisticas.total_reservas }}</div>
+                <div class="stat-label">Reservas Activas</div>
+                <i class="fas fa-calendar-check stat-icon"></i>
+            </div>
+            <div class="stat-card card">
+                <div class="stat-number">{{ estadisticas.clases_calendario }}</div>
+                <div class="stat-label">Clases disponibles</div>
+                <i class="fas fa-calendar stat-icon"></i>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-container card">
+            <nav class="tabs-nav">
+                <button class="tab-btn {% if tab_activa == 'usuarios' or not tab_activa %}active{% endif %}" data-tab="usuarios">
+                    <i class="fas fa-users"></i>
+                    Usuarios ({{ estadisticas.total_usuarios }})
+                </button>
+                <button class="tab-btn {% if tab_activa == 'instructores' %}active{% endif %}" data-tab="instructores">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    Instructores ({{ estadisticas.total_instructores }})
+                </button>
+                <button class="tab-btn {% if tab_activa == 'pagos' %}active{% endif %}" data-tab="pagos">
+                    <i class="fas fa-credit-card"></i>
+                    Pagos Pendientes ({{ pagos_pendientes|length }})
+                </button>
+                <button class="tab-btn {% if tab_activa == 'reportes' %}active{% endif %}" data-tab="reportes">
+                    <i class="fas fa-chart-bar"></i>
+                    Reportes
+                </button>
+            </nav>
+
+            <!-- Tab: Usuarios -->
+            <div id="usuarios" class="tab-content {% if tab_activa == 'usuarios' or not tab_activa %}active{% endif %}">
+                <div class="search-box">
+                    <form method="POST" action="{{ url_for('admin') }}">
+                        <input type="hidden" name="accion" value="buscar">
+                        <input type="hidden" name="tab_actual" value="usuarios">
+                        <input type="text" name="termino_busqueda" class="search-input" 
+                               placeholder="Buscar por nombre, correo o teléfono..." 
+                               value="{{ termino_busqueda }}">
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        {% if termino_busqueda %}
+                        <a href="{{ url_for('admin') }}?tab=usuarios" class="btn btn-secondary btn-clear">
+                            <i class="fas fa-times"></i> Limpiar
+                        </a>
+                        {% endif %}
+                    </form>
+                </div>
+
+                {% if usuarios %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Correo</th>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Clases</th>
+                                <th>Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for usuario in usuarios %}
+                            <tr>
+                                <td>{{ usuario[0] }}</td>
+                                <td>{{ usuario[1] }} {{ usuario[2] }}</td>
+                                <td>{{ usuario[3] }}</td>
+                                <td>
+                                    <span class="badge {% if usuario[4] and usuario[4] > 0 %}badge-success{% else %}badge-warning{% endif %}">
+                                        {{ usuario[4] }} clases
+                                    </span>
+                                </td>
+                                <td>{{ usuario[5] if usuario[5] else '-' }}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon btn-agregar-clases" 
+                                                data-correo="{{ usuario[0] }}" 
+                                                data-nombre="{{ usuario[1] }}" 
+                                                data-clases="{{ usuario[4] }}" 
+                                                title="Agregar clases">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick='mostrarModalCancelarReservas("{{ usuario[0] }}", "{{ usuario[1] }}")' title="Cancelar reservas">
+                                            <i class="fas fa-calendar-times"></i>
+                                        </button>
+                                        <button class="btn-icon delete" onclick='confirmarEliminarUsuario("{{ usuario[0] }}")' title="Eliminar usuario">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-users empty-icon"></i>
+                    <h3>No hay usuarios</h3>
+                    <p>{% if termino_busqueda %}No se encontraron resultados para "{{ termino_busqueda }}"{% else %}No hay usuarios registrados aún{% endif %}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Tab: Instructores -->
+            <div id="instructores" class="tab-content {% if tab_activa == 'instructores' %}active{% endif %}">
+                <div class="action-bar">
+                    <button class="btn btn-primary" onclick="mostrarModalAgregarInstructor()">
+                        <i class="fas fa-plus"></i> Agregar Instructor
+                    </button>
+                </div>
+
+                {% if instructores %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Correo</th>
+                                <th>Nombre</th>
+                                <th>Especialidad</th>
+                                <th>Teléfono</th>
+                                <th>Experiencia</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                                <th>Clases</th>  
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for instructor in instructores %}
+                            <tr>
+                                <td>{{ instructor[1] }}</td>
+                                <td>{{ instructor[3] }}</td>
+                                <td>{{ instructor[4] or '-' }}</td>
+                                <td>{{ instructor[5] }}</td>
+                                <td>{{ instructor[6] or '0' }} años</td>
+                                <td>
+                                    <span class="badge {% if instructor[7] == 'activo' %}badge-success{% else %}badge-danger{% endif %}">
+                                        {{ instructor[7] }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon edit" onclick='mostrarModalEditarInstructor("{{ instructor[1] }}", "{{ instructor[3] }}", "{{ instructor[4] }}", "{{ instructor[5] }}", "{{ instructor[6] }}", "{{ instructor[9] }}")' title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-icon delete" onclick='confirmarEliminarInstructor("{{ instructor[1] }}", "{{ instructor[3] }}")' title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                         <button class="btn-icon" onclick='confirmarEliminarTodasClasesInstructor("{{ instructor[1] }}", "{{ instructor[3] }}")' title="Eliminar todas las clases">
+                                            <i class="fas fa-calendar-times"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn-icon" onclick='verClasesInstructor("{{ instructor[1] }}", "{{ instructor[3] }}")' title="Ver clases del instructor">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-chalkboard-teacher empty-icon"></i>
+                    <h3>No hay instructores</h3>
+                    <p>No hay instructores registrados aún</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Tab: Pagos Pendientes -->
+            <div id="pagos" class="tab-content {% if tab_activa == 'pagos' %}active{% endif %}">
+                <h2 class="form-title">
+                    <i class="fas fa-credit-card"></i>
+                    Gestión de Pagos
+                </h2>
+                
+                <!-- Resumen de pagos -->
+                <div class="resumen-pagos">
+                    <div class="resumen-card card">
+                        <div class="resumen-numero">{{ pagos_pendientes|length }}</div>
+                        <div class="resumen-label">Pagos Pendientes</div>
+                    </div>
+                    <div class="resumen-card card">
+                        <div class="resumen-numero">
+                            ${{ "%.2f"|format(pagos_pendientes|sum(attribute='3')) }}
+                        </div>
+                        <div class="resumen-label">Monto Total Pendiente</div>
+                    </div>
+                    <div class="resumen-card card">
+                        <div class="resumen-numero">{{ pagos_confirmados|length }}</div>
+                        <div class="resumen-label">Últimos Confirmados</div>
+                    </div>
+                </div>
+                
+                <!-- Pagos Pendientes -->
+                <h3 class="section-title">
+                    <i class="fas fa-hourglass-half"></i>
+                    Pagos Pendientes de Confirmación
+                </h3>
+                
+                {% if pagos_pendientes %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Correo</th>
+                                <th>Referencia</th>
+                                <th>Método</th>
+                                <th>Monto</th>
+                                <th>Paquete</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pago in pagos_pendientes %}
+                            <tr>
+                                <td>{{ pago[0] }}</td>
+                                <td>{{ pago[1] }}</td>
+                                <td>{{ pago[2] }}</td>
+                                <td>
+                                    {% if pago[6] == 'pago_movil' %}
+                                    <span class="metodo-badge metodo-pago-movil">Pago Móvil</span>
+                                    {% elif pago[6] == 'zelle' %}
+                                    <span class="metodo-badge metodo-zelle">Zelle</span>
+                                    {% elif pago[6] == 'paypal' %}
+                                    <span class="metodo-badge metodo-paypal">PayPal</span>
+                                    {% else %}
+                                    {{ pago[6] }}
+                                    {% endif %}
+                                </td>
+                                <td>${{ "%.2f"|format(pago[3]) }}</td>
+                                <td>{{ pago[5] }}</td>
+                                <td>{{ pago[4] }}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <form method="POST" action="{{ url_for('admin') }}" style="display: inline;">
+                                            <input type="hidden" name="accion" value="confirmar_pago">
+                                            <input type="hidden" name="id_pago" value="{{ pago[0] }}">
+                                            <input type="hidden" name="tab_actual" value="pagos">
+                                            <button type="submit" class="btn-confirmar" onclick="return confirm('¿Confirmar este pago?')">
+                                                <i class="fas fa-check"></i> Confirmar
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ url_for('admin') }}" style="display: inline;">
+                                            <input type="hidden" name="accion" value="rechazar_pago">
+                                            <input type="hidden" name="id_pago" value="{{ pago[0] }}">
+                                            <input type="hidden" name="tab_actual" value="pagos">
+                                            <button type="submit" class="btn-rechazar" onclick="return confirm('¿Rechazar este pago?')">
+                                                <i class="fas fa-times"></i> Rechazar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-check-circle empty-icon success"></i>
+                    <h3>No hay pagos pendientes</h3>
+                    <p>Todos los pagos están al día</p>
+                </div>
+                {% endif %}
+                
+                <!-- Últimos pagos confirmados -->
+                {% if pagos_confirmados %}
+                <h3 class="section-title">
+                    <i class="fas fa-history"></i>
+                    Últimos Pagos Confirmados
+                </h3>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Correo</th>
+                                <th>Referencia</th>
+                                <th>Método</th>
+                                <th>Monto</th>
+                                <th>Paquete</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pago in pagos_confirmados %}
+                            <tr>
+                                <td>{{ pago[0] }}</td>
+                                <td>{{ pago[1] }}</td>
+                                <td>{{ pago[2] }}</td>
+                                <td>
+                                    {% if pago[6] == 'pago_movil' %}
+                                    <span class="metodo-badge metodo-pago-movil">Pago Móvil</span>
+                                    {% elif pago[6] == 'zelle' %}
+                                    <span class="metodo-badge metodo-zelle">Zelle</span>
+                                    {% elif pago[6] == 'paypal' %}
+                                    <span class="metodo-badge metodo-paypal">PayPal</span>
+                                    {% else %}
+                                    {{ pago[6] }}
+                                    {% endif %}
+                                </td>
+                                <td>${{ "%.2f"|format(pago[3]) }}</td>
+                                <td>{{ pago[5] }}</td>
+                                <td>{{ pago[4] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Tab: Reportes -->
+            <div id="reportes" class="tab-content {% if tab_activa == 'reportes' %}active{% endif %}">
+                <h2 class="form-title">
+                    <i class="fas fa-chart-bar"></i>
+                    Reportes de Ventas
+                </h2>
+                
+                <!-- Selector de mes -->
+                <div class="selector-mes">
+                    <form method="GET" action="{{ url_for('admin') }}" class="mes-form">
+                        <input type="hidden" name="tab" value="reportes">
+                        <div class="selector-group">
+                            <label for="mes">Seleccionar mes:</label>
+                            <select name="mes" id="mes" class="mes-select" onchange="this.form.submit()">
+                                {% for mes in meses_disponibles %}
+                                <option value="{{ mes.valor }}" {% if mes_seleccionado == mes.valor %}selected{% endif %}>
+                                    {{ mes.nombre }} {{ mes.año }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Resumen de ventas -->
+                <div class="resumen-ventas">
+                    <div class="resumen-card card">
+                        <div class="resumen-icono">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="resumen-contenido">
+                            <div class="resumen-valor">${{ "%.2f"|format(datos_ventas.total_ingresos) }}</div>
+                            <div class="resumen-etiqueta">Ingresos Totales</div>
+                        </div>
+                    </div>
+                    
+                    <div class="resumen-card card">
+                        <div class="resumen-icono">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <div class="resumen-contenido">
+                            <div class="resumen-valor">{{ datos_ventas.cantidad_pagos }}</div>
+                            <div class="resumen-etiqueta">Ventas Realizadas</div>
+                        </div>
+                    </div>
+                    
+                    <div class="resumen-card card">
+                        <div class="resumen-icono">
+                            <i class="fas fa-calendar-star"></i>
+                        </div>
+                        <div class="resumen-contenido">
+                            <div class="resumen-valor">{{ ventas_por_dia.dia_mas_ventas }}</div>
+                            <div class="resumen-etiqueta">Día con más ventas</div>
+                            <div class="resumen-subvalor">{{ ventas_por_dia.cantidad_max }} ventas</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gráfica de ventas por día -->
+                <div class="grafica-container card">
+                    <h3 class="grafica-titulo">
+                        <i class="fas fa-chart-bar"></i>
+                        Ventas por Día de la Semana
+                    </h3>
+                    
+                    <div class="barras-container">
+                        {% set max_cantidad = ventas_por_dia.ventas_por_dia.values()|map(attribute='cantidad')|max %}
+                        {% for dia, valores in ventas_por_dia.ventas_por_dia.items() %}
+                        <div class="barra-item">
+                            <div class="barra-dia">{{ dia[:3] }}</div>
+                            <div class="barra-contenedor">
+                                {% if valores.cantidad > 0 %}
+                                    {% set porcentaje = (valores.cantidad / max_cantidad * 100) if max_cantidad > 0 else 0 %}
+                                    {% set color = "#28a745" if porcentaje > 66 else ("#ffc107" if porcentaje > 33 else "#dc3545") %}
+                                    <div class="barra" 
+                                        style="height: {{ porcentaje }}%; background-color: {{ color }};" 
+                                        title="{{ dia }}: {{ valores.cantidad }} ventas - ${{ '%.2f'|format(valores.monto) }}">
+                                    </div>
+                                {% else %}
+                                    <div class="barra vacia" style="height: 5px; background-color: #e8e0d9;" 
+                                         title="{{ dia }}: Sin ventas"></div>
+                                {% endif %}
+                            </div>
+                            <div class="barra-valor">{{ valores.cantidad }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Leyenda de colores -->
+                    <div class="leyenda-container">
+                        <div class="leyenda-item">
+                            <span class="leyenda-color" style="background-color: #28a745;"></span>
+                            <span>Alta demanda</span>
+                        </div>
+                        <div class="leyenda-item">
+                            <span class="leyenda-color" style="background-color: #ffc107;"></span>
+                            <span>Media demanda</span>
+                        </div>
+                        <div class="leyenda-item">
+                            <span class="leyenda-color" style="background-color: #dc3545;"></span>
+                            <span>Baja demanda</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Detalle de ventas -->
+                <div class="detalle-ventas">
+                    <h3 class="section-title">
+                        <i class="fas fa-list"></i>
+                        Detalle de Ventas del Mes
+                    </h3>
+                    
+                    {% if datos_ventas.pagos %}
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Correo</th>
+                                    <th>Referencia</th>
+                                    <th>Monto</th>
+                                    <th>Fecha</th>
+                                    <th>Paquete</th>
+                                    <th>Método</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pago in datos_ventas.pagos %}
+                                <tr>
+                                    <td>{{ pago[0] }}</td>
+                                    <td>{{ pago[1] }}</td>
+                                    <td><span class="referencia">{{ pago[2] }}</span></td>
+                                    <td>${{ "%.2f"|format(pago[3]) }}</td>
+                                    <td>{{ pago[4].strftime('%d/%m/%Y') if pago[4] else '' }}</td>
+                                    <td>{{ pago[5] }}</td>
+                                    <td>
+                                        <span class="metodo-badge 
+                                            {% if pago[6] == 'pago_movil' %}metodo-pago-movil
+                                            {% elif pago[6] == 'zelle' %}metodo-zelle
+                                            {% elif pago[6] == 'paypal' %}metodo-paypal
+                                            {% endif %}">
+                                            {{ pago[6]|replace('_', ' ')|title }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-receipt empty-icon"></i>
+                        <h3>No hay ventas en este mes</h3>
+                        <p>No se encontraron pagos confirmados para este período</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Botón de exportar -->
+                    <div class="exportar-container">
+                        <form method="POST" action="{{ url_for('exportar_reporte') }}">
+                            <input type="hidden" name="mes" value="{{ mes_seleccionado.split('-')[1]|int }}">
+                            <input type="hidden" name="año" value="{{ mes_seleccionado.split('-')[0]|int }}">
+                            <button type="submit" class="btn-exportar">
+                                <i class="fas fa-file-pdf"></i>
+                                Exportar Reporte a PDF
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales -->
+    <div id="modalAgregarClases" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Agregar Clases</h2>
+                <span class="modal-close" onclick="cerrarModal('modalAgregarClases')">&times;</span>
+            </div>
+            <form method="POST" action="{{ url_for('admin') }}">
+                <input type="hidden" name="accion" value="agregar_clases">
+                <input type="hidden" name="tab_actual" value="usuarios">
+                <input type="hidden" name="correo_usuario" id="clases-correo">
+                
+                <div class="form-group">
+                    <label>Usuario:</label>
+                    <input type="text" id="clases-nombre" readonly class="form-input readonly">
+                </div>
+                
+                <div class="form-group">
+                    <label>Clases actuales:</label>
+                    <input type="text" id="clases-actuales" readonly class="form-input readonly">
+                </div>
+                
+                <div class="form-group">
+                    <label for="clases">Clases a agregar:</label>
+                    <input type="number" id="clases" name="clases" min="1" max="100" required class="form-input">
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalAgregarClases')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Agregar Clases</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalCancelarReservas" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-calendar-times"></i> Cancelar Reservas</h2>
+                <span class="modal-close" onclick="cerrarModal('modalCancelarReservas')">&times;</span>
+            </div>
+            <form method="POST" action="{{ url_for('admin') }}">
+                <input type="hidden" name="accion" value="cancelar_reservas">
+                <input type="hidden" name="tab_actual" value="usuarios">
+                <input type="hidden" name="correo_usuario" id="cancelar-correo">
+                
+                <p>¿Estás seguro de cancelar TODAS las reservas de este usuario?</p>
+                <p><strong id="cancelar-nombre"></strong></p>
+                <p class="warning-text">Esta acción no se puede deshacer.</p>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalCancelarReservas')">No, mantener</button>
+                    <button type="submit" class="btn btn-danger">Sí, cancelar todas</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalAgregarInstructor" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus"></i> Agregar Instructor</h2>
+                <span class="modal-close" onclick="cerrarModal('modalAgregarInstructor')">&times;</span>
+            </div>
+            <form method="POST" action="{{ url_for('admin') }}" enctype="multipart/form-data">
+                <input type="hidden" name="accion" value="agregar_instructor">
+                <input type="hidden" name="tab_actual" value="instructores">
+                
+                <div class="form-group">
+                    <label for="instructor-correo">Correo electrónico *</label>
+                    <input type="email" id="instructor-correo" name="correo" required class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="instructor-nombre">Nombre completo *</label>
+                    <input type="text" id="instructor-nombre" name="nombre" required class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="instructor-password">Contraseña *</label>
+                    <input type="password" id="instructor-password" name="password" required class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="instructor-especialidad">Especialidad</label>
+                    <input type="text" id="instructor-especialidad" name="especialidad" class="form-input" placeholder="Ej: Vinyasa, Hatha, Ashtanga...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="instructor-telefono">Teléfono *</label>
+                    <input type="tel" id="instructor-telefono" name="telefono" required class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="instructor-experiencia">Años de experiencia</label>
+                    <input type="number" id="instructor-experiencia" name="experiencia" min="0" max="50" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="instructor-bio">Biografía</label>
+                    <textarea id="instructor-bio" name="bio" rows="3" class="form-input" placeholder="Breve descripción del instructor..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="instructor-foto">Foto (opcional)</label>
+                    <input type="file" id="instructor-foto" name="foto" accept="image/*" class="form-input-file">
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalAgregarInstructor')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Agregar Instructor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalEditarInstructor" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Editar Instructor</h2>
+                <span class="modal-close" onclick="cerrarModal('modalEditarInstructor')">&times;</span>
+            </div>
+            <form method="POST" action="{{ url_for('admin') }}" enctype="multipart/form-data">
+                <input type="hidden" name="accion" value="editar_instructor">
+                <input type="hidden" name="tab_actual" value="instructores">
+                <input type="hidden" name="correo_original" id="editar-correo-original">
+                
+                <div class="form-group">
+                    <label for="editar-nombre">Nombre completo *</label>
+                    <input type="text" id="editar-nombre" name="nombre" required class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editar-especialidad">Especialidad</label>
+                    <input type="text" id="editar-especialidad" name="especialidad" class="form-input" placeholder="Ej: Vinyasa, Hatha, Ashtanga...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editar-telefono">Teléfono *</label>
+                    <input type="tel" id="editar-telefono" name="telefono" required class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editar-experiencia">Años de experiencia</label>
+                    <input type="number" id="editar-experiencia" name="experiencia" min="0" max="50" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editar-bio">Biografía</label>
+                    <textarea id="editar-bio" name="bio" rows="3" class="form-input" placeholder="Breve descripción del instructor..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editar-foto">Foto (opcional)</label>
+                    <input type="file" id="editar-foto" name="foto" accept="image/*" class="form-input-file">
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalEditarInstructor')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalClasesInstructor" class="modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2><i class="fas fa-calendar-alt"></i> Clases de <span id="clases-instructor-nombre"></span></h2>
+                <span class="modal-close" onclick="cerrarModal('modalClasesInstructor')">&times;</span>
+            </div>
+            <div id="clases-instructor-contenido" class="modal-body">
+                <p class="loading-text">Cargando clases...</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalClasesInstructor')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formularios ocultos para eliminaciones -->
+    <form id="formEliminarUsuario" method="POST" action="{{ url_for('admin') }}" style="display: none;">
+        <input type="hidden" name="accion" value="eliminar_usuario">
+        <input type="hidden" name="tab_actual" value="usuarios">
+        <input type="hidden" name="correo_usuario" id="eliminar-usuario-correo">
+    </form>
+    
+    <form id="formEliminarInstructor" method="POST" action="{{ url_for('admin') }}" style="display: none;">
+        <input type="hidden" name="accion" value="eliminar_instructor">
+        <input type="hidden" name="tab_actual" value="instructores">
+        <input type="hidden" name="correo_instructor" id="eliminar-instructor-correo">
+    </form>
+
+    <footer class="footer"></footer>
+
+    <script>
+        // Funciones para modales
+        function mostrarModalAgregarClases(correo, nombre, clasesActuales) {
+            console.log("Mostrar modal agregar clases - Correo:", correo, "Nombre:", nombre);
+            document.getElementById('clases-correo').value = correo;
+            document.getElementById('clases-nombre').value = nombre;
+            document.getElementById('clases-actuales').value = clasesActuales + ' clases';
+            document.getElementById('modalAgregarClases').style.display = 'flex';
+        }
+
+        function mostrarModalCancelarReservas(correo, nombre) {
+            console.log("Cancelar reservas - Correo:", correo, "Nombre:", nombre);
+            document.getElementById('cancelar-correo').value = correo;
+            document.getElementById('cancelar-nombre').textContent = nombre;
+            document.getElementById('modalCancelarReservas').style.display = 'flex';
+        }
+
+        function mostrarModalAgregarInstructor() {
+            console.log("Mostrar modal agregar instructor");
+            document.getElementById('modalAgregarInstructor').style.display = 'flex';
+        }
+
+        function mostrarModalEditarInstructor(correo, nombre, especialidad, telefono, experiencia, bio) {
+            console.log("Editar instructor - Correo:", correo);
+            console.log("Datos:", nombre, especialidad, telefono, experiencia, bio);
+            
+            document.getElementById('editar-correo-original').value = correo;
+            document.getElementById('editar-nombre').value = nombre;
+            document.getElementById('editar-especialidad').value = especialidad || '';
+            document.getElementById('editar-telefono').value = telefono || '';
+            document.getElementById('editar-experiencia').value = experiencia || 0;
+            document.getElementById('editar-bio').value = bio || '';
+            
+            const modal = document.getElementById('modalEditarInstructor');
+            if (modal) {
+                modal.style.display = 'flex';
+            } else {
+                console.error("No se encontró el modal de editar instructor");
+            }
+        }
+
+        function confirmarEliminarUsuario(correo) {
+            if (confirm('¿Estás seguro de eliminar este usuario? Se eliminarán también todas sus reservas.')) {
+                document.getElementById('eliminar-usuario-correo').value = correo;
+                document.getElementById('formEliminarUsuario').submit();
+            }
+        }
+        function confirmarEliminarTodasClasesInstructor(correo, nombre) {
+    console.log("Eliminar todas las clases del instructor - Correo:", correo, "Nombre:", nombre);
+    
+    const mensaje = `¿Estás seguro de eliminar TODAS las clases del instructor ${nombre}?\n\n` +
+                    `Esta acción:\n` +
+                    `• Eliminará TODAS sus clases futuras\n` +
+                    `• Devolverá los puntos a los alumnos afectados\n` +
+                    `• Notificará a todos los alumnos por email\n` +
+                    `• Las clases eliminadas no se podrán recuperar\n\n` +
+                    `Esta operación NO se puede deshacer.`;
+    
+    if (confirm(mensaje)) {
+        if (confirm('¿CONFIRMAS la eliminación de TODAS las clases de este instructor?')) {
+            eliminarTodasClasesInstructor(correo, nombre);
+        }
+    }
+}
+
+        function eliminarTodasClasesInstructor(correo, nombre) {
+            console.log("Eliminando todas las clases del instructor:", correo);
+            
+            fetch('/admin/eliminar-todas-clases-instructor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'correo_instructor=' + encodeURIComponent(correo)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    // Recargar la página para actualizar la lista
+                    location.reload();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error de conexión');
+            });
+        }
+        function confirmarEliminarInstructor(correo, nombre) {
+            console.log("Eliminar instructor - Correo:", correo, "Nombre:", nombre);
+            
+            const mensaje = `¿Estás seguro de eliminar al instructor ${nombre}?\n\n` +
+                            `Esta acción:\n` +
+                            `• Cancelará TODAS sus clases futuras\n` +
+                            `• Devolverá los puntos a los alumnos afectados\n` +
+                            `• Notificará a todos los alumnos por email\n` +
+                            `• Eliminará al instructor de la base de datos\n\n` +
+                            `Esta operación NO se puede deshacer.`;
+            
+            if (confirm(mensaje)) {
+                if (confirm('¿CONFIRMAS la eliminación de este instructor?')) {
+                    document.getElementById('eliminar-instructor-correo').value = correo;
+                    document.getElementById('formEliminarInstructor').submit();
+                }
+            }
+        }
+
+        function cerrarModal(modalId) {
+            console.log("Cerrando modal:", modalId);
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Función para ver clases del instructor
+        function verClasesInstructor(email, nombre) {
+            console.log("Ver clases de instructor:", email, nombre);
+            
+            document.getElementById('clases-instructor-nombre').textContent = nombre;
+            
+            const modal = document.getElementById('modalClasesInstructor');
+            if (!modal) {
+                console.error("No se encontró el modal de clases instructor");
+                return;
+            }
+            
+            modal.style.display = 'flex';
+            
+            const contenido = document.getElementById('clases-instructor-contenido');
+            contenido.innerHTML = '<p class="loading-text">Cargando clases...</p>';
+            
+            fetch('/admin/clases-instructor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'instructor_email=' + encodeURIComponent(email)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Respuesta del servidor:", data);
+                if (data.success) {
+                    mostrarClasesInstructor(data.clases, email);
+                } else {
+                    contenido.innerHTML = '<p class="error-text">Error: ' + data.message + '</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                contenido.innerHTML = '<p class="error-text">Error de conexión</p>';
+            });
+        }
+
+        function mostrarClasesInstructor(clases, instructorEmail) {
+            const contenido = document.getElementById('clases-instructor-contenido');
+            
+            if (!clases || clases.length === 0) {
+                contenido.innerHTML = '<p class="empty-text">No hay clases programadas para este instructor</p>';
+                return;
+            }
+            
+            let html = '<div class="clases-list">';
+            
+            clases.forEach(clase => {
+                const fecha = new Date(clase.date + 'T' + clase.time);
+                const fechaFormateada = fecha.toLocaleDateString('es-ES', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                
+                html += `
+                    <div class="clase-card">
+                        <div class="clase-header">
+                            <h3 class="clase-titulo">${clase.title}</h3>
+                            <span class="badge ${clase.current_attendees > 0 ? 'badge-success' : 'badge-warning'}">
+                                ${clase.current_attendees} asistentes
+                            </span>
+                        </div>
+                        <p class="clase-info"><i class="fas fa-calendar"></i> ${fechaFormateada}</p>
+                        <p class="clase-info"><i class="fas fa-clock"></i> ${clase.time} (${clase.duration} min)</p>
+                        <p class="clase-info"><i class="fas fa-map-marker-alt"></i> ${clase.location}</p>
+                        ${clase.current_attendees > 0 ? 
+                            `<button class="btn-cancelar-clase" 
+                                onclick="confirmarCancelarClase('${clase.event_id}', '${instructorEmail}', '${clase.title}')">
+                                <i class="fas fa-times"></i> Cancelar todas las reservas
+                            </button>` : 
+                            '<p class="empty-text">No hay alumnos inscritos</p>'
+                        }
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            contenido.innerHTML = html;
+        }
+
+        function confirmarCancelarClase(eventId, instructorEmail, titulo) {
+            if (confirm(`¿Estás seguro de cancelar TODAS las reservas de la clase "${titulo}"?`)) {
+                cancelarClase(eventId, instructorEmail);
+            }
+        }
+
+        function cancelarClase(eventId, instructorEmail) {
+            console.log("Cancelando clase:", eventId);
+            
+            fetch('/admin/cancelar-clase', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'event_id=' + encodeURIComponent(eventId) + '&instructor_email=' + encodeURIComponent(instructorEmail)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    verClasesInstructor(instructorEmail, document.getElementById('clases-instructor-nombre').textContent);
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error de conexión');
+            });
+        }
+
+        // Tabs functionality
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                button.classList.add('active');
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Cerrar modales al hacer clic fuera
+        window.onclick = function(event) {
+            const modals = ['modalAgregarClases', 'modalCancelarReservas', 'modalAgregarInstructor', 'modalEditarInstructor', 'modalClasesInstructor'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Event listeners para botones con data-atributos
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("✅ Panel de administración cargado");
+            
+            // Verificar que los modales existen
+            const modals = ['modalAgregarClases', 'modalCancelarReservas', 'modalAgregarInstructor', 'modalEditarInstructor', 'modalClasesInstructor'];
+            modals.forEach(id => {
+                const modal = document.getElementById(id);
+                if (modal) {
+                    console.log(`✅ Modal ${id} encontrado`);
+                } else {
+                    console.error(`❌ Modal ${id} NO encontrado`);
+                }
+            });
+            
+            // Botones para agregar clases (usando data-atributos)
+            document.querySelectorAll('.btn-agregar-clases').forEach(btn => {
+                console.log("Botón agregar clases encontrado");
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const correo = this.dataset.correo;
+                    const nombre = this.dataset.nombre;
+                    const clases = this.dataset.clases;
+                    console.log("Click en agregar clases:", correo, nombre, clases);
+                    mostrarModalAgregarClases(correo, nombre, clases);
+                });
+            });
+
+            // Manejar el formulario de búsqueda
+            const searchForm = document.querySelector('.search-box form');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function(e) {
+                    const searchInput = this.querySelector('input[name="termino_busqueda"]');
+                    if (!searchInput.value.trim()) {
+                        e.preventDefault();
+                        window.location.href = "/admin?tab=usuarios";
+                    }
+                });
+            }
+
+            // Mostrar nombre del archivo seleccionado para foto
+            const fotoInputs = ['instructor-foto', 'editar-foto'];
+            fotoInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('change', function(e) {
+                        const fileName = e.target.files[0]?.name;
+                        if (fileName) {
+                            const small = document.createElement('small');
+                            small.className = 'file-name-display';
+                            small.textContent = 'Archivo seleccionado: ' + fileName;
+                            
+                            const oldSmall = this.parentElement.querySelector('.file-name-display');
+                            if (oldSmall) oldSmall.remove();
+                            
+                            this.parentElement.appendChild(small);
+                        }
+                    });
+                }
+            });
+            
+            console.log("✅ Formulario eliminar instructor:", document.getElementById('formEliminarInstructor'));
+            console.log("✅ Formulario cancelar reservas:", document.getElementById('modalCancelarReservas'));
+        });
+    </script>
+    
+    <script>
+        const rutas = {
+            index: "{{ url_for('index') }}",
+            reservas: "{{ url_for('reservas') }}",
+            admin: "{{url_for('admin')}}",
+            yogui:"{{url_for('yogui')}}",
+            contacto: "{{ url_for('contacto') }}",
+            paquete:"{{url_for('paquetes')}}",
+            loginS: "{{ LogShala | tojson }}"
+        };
+    </script>
+    
+    <script src="static/js/header-footer-dinamico.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

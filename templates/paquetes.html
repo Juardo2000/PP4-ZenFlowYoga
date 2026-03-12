@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧘</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/header-footer.css">
+    <link rel="stylesheet" href="static/css/paquetes.css">
+    <link rel="stylesheet" href="static/css/alerts.css">
+    <title>Paquetes - ZenFlow Yoga</title>
+</head>
+<body>
+    <!-- Encabezado -->
+    <header></header>
+
+    <main class="container">
+        <h1 class="page-title">Paquetes Disponibles</h1>
+        
+        <!-- Mostrar si hay pagos pendientes -->
+        {% if pagos_pendientes %}
+        <div class="pago-pendiente">
+            <strong>⏳ Pagos pendientes:</strong> Tienes {{ pagos_pendientes|length }} pago(s) esperando confirmación.
+            <div class="pagos-list">
+                {% for pago in pagos_pendientes %}
+                <div class="pago-item">
+                    <p><strong>ID Pago:</strong> {{ pago[0] }}</p>
+                    <p><strong>Referencia:</strong> {{ pago[1] }}</p>
+                    <p><strong>Paquete ID:</strong> {{ pago[2] }}</p>
+                    <p><strong>Monto:</strong> ${{ pago[3] }}</p>
+                    <p><strong>Fecha:</strong> {{ pago[4] }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            <p class="helper-text">Una vez verificados por un administrador, se agregarán las clases a tu cuenta.</p>
+        </div>
+        {% endif %}
+        
+        {% if not paquetes %}
+            <p class="no-data">No hay paquetes disponibles.</p>
+        {% else %}
+            <div id="lista-paquetes" class="paquetes-grid">
+                {% for paquete in paquetes %}
+                <div class="paquete-card card" data-id="{{ paquete[0] }}" data-precio="{{ paquete[1] }}" data-clases="{{ paquete[2] }}">
+                    <h3 class="paquete-titulo">Paquete {{ loop.index }}</h3>
+                    <div class="paquete-detalle">
+                        <p><strong>ID:</strong> {{ paquete[0] }}</p>
+                        <p class="paquete-precio">${{ paquete[1] }}</p>
+                        <p class="paquete-clases">{{ paquete[2] }} clases</p>
+                        
+                        {% if paquete|length > 4 and paquete[3] %}
+                        <p class="paquete-descripcion">{{ paquete[3] }}</p>
+                        {% endif %}
+                        
+                        <button class="btn btn-primary btn-seleccionar" onclick="mostrarModalPaquete('{{ paquete[0] }}', '{{ paquete[1] }}', '{{ paquete[2] }}')">
+                            Seleccionar este paquete
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </main>
+
+    <!-- Modal para pago -->
+    <div id="modal-compra" class="modal">
+        <div class="modal-contenido">
+            <span class="cerrar-modal" onclick="cerrarModal()">&times;</span>
+            <h2>Completar Pago</h2>
+            
+            <div class="modal-info">
+                <p><strong>Paquete:</strong> <span id="modal-id"></span></p>
+                <p><strong>Precio:</strong> $<span id="modal-precio"></span></p>
+                <p><strong>Clases:</strong> <span id="modal-clases"></span> clases</p>
+            </div>
+            
+            <hr>
+            
+            <!-- Selección de método de pago -->
+            <div class="metodos-pago">
+                <h3>Selecciona método de pago:</h3>
+                
+                <div class="metodo-pago">
+                    <input type="radio" name="metodo_pago" id="pago_movil" value="pago_movil" onchange="mostrarDatosPago()">
+                    <label for="pago_movil">Pago Móvil</label>
+                </div>
+                
+                <div class="metodo-pago">
+                    <input type="radio" name="metodo_pago" id="zelle" value="zelle" onchange="mostrarDatosPago()">
+                    <label for="zelle">Zelle</label>
+                </div>
+                
+                <div class="metodo-pago">
+                    <input type="radio" name="metodo_pago" id="paypal" value="paypal" onchange="mostrarDatosPago()">
+                    <label for="paypal">PayPal</label>
+                </div>
+            </div>
+            
+            <!-- Datos del pago según método seleccionado -->
+            <div id="datos_pago_movil" class="datos-pago" style="display: none;">
+                <h4>Datos para Pago Móvil:</h4>
+                <p><strong>Banco:</strong> Banco de Venezuela</p>
+                <p><strong>Teléfono:</strong> 0414-1234567</p>
+                <p><strong>Cédula/RIF:</strong> V-12345678-9</p>
+            </div>
+            
+            <div id="datos_zelle" class="datos-pago" style="display: none;">
+                <h4>Datos para Zelle:</h4>
+                <p><strong>Email:</strong> pagos@zenflowyoga.com</p>
+                <p><strong>Nombre:</strong> ZenFlow Yoga C.A.</p>
+                <p><strong>Banco:</strong> Bank of America</p>
+                <p><strong>Nota:</strong> Enviar a este correo asociado a Zelle</p>
+            </div>
+            
+            <div id="datos_paypal" class="datos-pago" style="display: none;">
+                <h4>Datos para PayPal:</h4>
+                <p><strong>Email:</strong> paypal@zenflowyoga.com</p>
+                <p><strong>Link:</strong> paypal.me/zenflowyoga</p>
+                <p><strong>Nota:</strong> Enviar como "Amigos y familiares"</p>
+            </div>
+            
+            <!-- Campo de referencia -->
+            <div class="campo-referencia">
+                <label for="referencia">Número de Referencia / ID de Transacción:</label>
+                <input type="text" id="referencia" name="referencia" oninput="validarFormulario()">
+                <div id="error-referencia" class="error-mensaje">Debes ingresar la referencia del pago</div>
+            </div>
+            
+            <!-- Formulario para pago pendiente -->
+            <form id="form-pago" method="POST" action="/paquetes">
+                <input type="hidden" name="accion" value="pago_pendiente">
+                <input type="hidden" name="id_paquete" id="input-id">
+                <input type="hidden" name="precio" id="input-precio">
+                <input type="hidden" name="clases" id="input-clases">
+                <input type="hidden" name="correo" value="{{ correo }}">
+                <input type="hidden" name="metodo_pago" id="input-metodo-pago">
+                <input type="hidden" name="referencia" id="input-referencia">
+            </form>
+            
+            <!-- Botones de acción -->
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="btn-pagar" onclick="procesarPago()" disabled>Confirmar Pago</button>
+                <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+  
+    <!-- Pie de pagina -->
+    <footer class="footer"></footer>
+    
+    <script>
+        let modal = document.getElementById("modal-compra");
+        
+        function mostrarModalPaquete(id, precio, clases) {
+            document.getElementById('modal-id').textContent = id;
+            document.getElementById('modal-precio').textContent = precio;
+            document.getElementById('modal-clases').textContent = clases;
+            
+            document.getElementById('input-id').value = id;
+            document.getElementById('input-precio').value = precio;
+            document.getElementById('input-clases').value = clases;
+            
+            resetearModal();
+            modal.style.display = "block";
+        }
+        
+        function resetearModal() {
+            document.querySelectorAll('input[name="metodo_pago"]').forEach(r => r.checked = false);
+            
+            document.getElementById('datos_pago_movil').style.display = 'none';
+            document.getElementById('datos_zelle').style.display = 'none';
+            document.getElementById('datos_paypal').style.display = 'none';
+            
+            document.getElementById('referencia').value = '';
+            document.getElementById('btn-pagar').disabled = true;
+            document.getElementById('error-referencia').style.display = 'none';
+        }
+        
+        function mostrarDatosPago() {
+            document.getElementById('datos_pago_movil').style.display = 'none';
+            document.getElementById('datos_zelle').style.display = 'none';
+            document.getElementById('datos_paypal').style.display = 'none';
+            
+            if (document.getElementById('pago_movil').checked) {
+                document.getElementById('datos_pago_movil').style.display = 'block';
+            } else if (document.getElementById('zelle').checked) {
+                document.getElementById('datos_zelle').style.display = 'block';
+            } else if (document.getElementById('paypal').checked) {
+                document.getElementById('datos_paypal').style.display = 'block';
+            }
+            
+            validarFormulario();
+        }
+        
+        function validarFormulario() {
+            const metodoSeleccionado = document.querySelector('input[name="metodo_pago"]:checked');
+            const referencia = document.getElementById('referencia').value.trim();
+            const btnPagar = document.getElementById('btn-pagar');
+            const errorRef = document.getElementById('error-referencia');
+            
+            let valido = true;
+            
+            if (!metodoSeleccionado) {
+                valido = false;
+            }
+            
+            if (referencia.length < 3) {
+                valido = false;
+                errorRef.style.display = 'block';
+            } else {
+                errorRef.style.display = 'none';
+            }
+            
+            btnPagar.disabled = !valido;
+        }
+        
+        function procesarPago() {
+            const metodo = document.querySelector('input[name="metodo_pago"]:checked');
+            const referencia = document.getElementById('referencia').value.trim();
+            
+            if (!metodo || referencia.length < 3) {
+                alert('Por favor selecciona un método de pago y ingresa la referencia');
+                return;
+            }
+            
+            document.getElementById('input-metodo-pago').value = metodo.value;
+            document.getElementById('input-referencia').value = referencia;
+            document.getElementById('form-pago').submit();
+        }
+        
+        function cerrarModal() {
+            modal.style.display = "none";
+        }
+        
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                cerrarModal();
+            }
+        }
+        
+        document.getElementById('referencia').addEventListener('input', validarFormulario);
+        
+        document.querySelectorAll('input[name="metodo_pago"]').forEach(radio => {
+            radio.addEventListener('change', validarFormulario);
+        });
+    </script>
+    
+    <script>
+        const rutas = {
+            index: "{{ url_for('index') }}",
+            reservas: "{{ url_for('reservas') }}",
+            contacto: "{{ url_for('contacto') }}",
+            yogui:"{{url_for('yogui')}}",
+            login: "{{ url_for('login') }}",
+            admin: "{{url_for('admin')}}",
+            instructor:"{{url_for('instructor')}}",
+            paquete:"{{url_for('paquetes')}}",
+            loginY: "{{ logYogui | tojson }}",
+            loginS: "{{ LogShala | tojson }}",
+            loginI: "{{ LogInst | tojson }}"
+        };
+    </script>
+    
+    <script src="static/js/header-footer-dinamico.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="static/js/script.js"></script>
+</body>
+</html>

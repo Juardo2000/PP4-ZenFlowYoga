@@ -1,0 +1,134 @@
+/* static/css/registro.css */
+.pagina-registro {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-registro {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.formulario-registro {
+    max-width: 600px;
+    width: 100%;
+    padding: 40px;
+    background: var(--background-white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-hover);
+    animation: fadeIn 0.6s ease;
+}
+
+.formulario-registro h1 {
+    text-align: center;
+    color: var(--primary-dark);
+    font-size: 2rem;
+    margin-bottom: 30px;
+    font-family: 'Playfair Display', serif;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.username {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.username input,
+.username textarea {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 1rem;
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    outline: none;
+    background: transparent;
+    transition: border-color 0.3s ease;
+}
+
+.username textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.username input:focus,
+.username textarea:focus {
+    border-bottom-color: var(--primary-color);
+}
+
+.username label {
+    position: absolute;
+    top: 12px;
+    left: 0;
+    color: var(--text-light);
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.username input:focus ~ label,
+.username input:valid ~ label,
+.username textarea:focus ~ label,
+.username textarea:valid ~ label {
+    top: -20px;
+    font-size: 0.85rem;
+    color: var(--primary-color);
+}
+
+.btn-enviar-codigo {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--border-radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 12px;
+    min-width: 140px;
+}
+
+.btn-enviar-codigo:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.btn-registrar {
+    width: 100%;
+    padding: 14px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.btn-registrar:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.ya-registrado {
+    text-align: center;
+    margin-top: 25px;
+    color: var(--text-light);
+}
+
+.ya-registrado a {
+    color: var(--primary-color);
+    text-decoration: none;
+}

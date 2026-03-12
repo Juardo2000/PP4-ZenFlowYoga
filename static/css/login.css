@@ -1,0 +1,136 @@
+/* static/css/login.css */
+.pagina-login {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.formulario {
+    max-width: 450px;
+    margin: 40px auto;
+    padding: 40px;
+    background: var(--background-white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-hover);
+    animation: fadeIn 0.6s ease;
+}
+
+.formulario h1 {
+    text-align: center;
+    color: var(--primary-dark);
+    font-size: 2.2rem;
+    margin-bottom: 30px;
+    font-family: 'Playfair Display', serif;
+}
+
+.username {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.username input {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 1rem;
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    outline: none;
+    background: transparent;
+    transition: border-color 0.3s ease;
+}
+
+.username input:focus {
+    border-bottom-color: var(--primary-color);
+}
+
+.username label {
+    position: absolute;
+    top: 12px;
+    left: 0;
+    color: var(--text-light);
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.username input:focus ~ label,
+.username input:valid ~ label {
+    top: -20px;
+    font-size: 0.85rem;
+    color: var(--primary-color);
+}
+
+.formulario input[type="submit"] {
+    width: 100%;
+    padding: 14px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.formulario input[type="submit"]:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.registrarse {
+    text-align: center;
+    margin-top: 25px;
+    color: var(--text-light);
+}
+
+.registrarse a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.registrarse a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* Elementos decorativos */
+.pagina-login::before {
+    content: '🧘';
+    position: fixed;
+    top: 10%;
+    left: 5%;
+    font-size: 8rem;
+    opacity: 0.1;
+    z-index: -1;
+}
+
+.pagina-login::after {
+    content: '🌸';
+    position: fixed;
+    bottom: 10%;
+    right: 5%;
+    font-size: 8rem;
+    opacity: 0.1;
+    z-index: -1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .formulario {
+        margin: 20px;
+        padding: 30px;
+    }
+    
+    .formulario h1 {
+        font-size: 1.8rem;
+    }
+    
+    .pagina-login::before,
+    .pagina-login::after {
+        font-size: 5rem;
+    }
+}

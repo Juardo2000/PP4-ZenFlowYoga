@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧘</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/header-footer.css">
+    <link rel="stylesheet" href="static/css/index.css">
+    <link rel="stylesheet" href="static/css/alerts.css">
+    <title>ZenFlow Yoga</title>
+</head>
+<body>
+    <!-- Encabezado -->
+    <header></header>
+    
+    <!-- Principal -->
+    <main>
+        <!-- Sección de Bienvenida -->
+        <section class="welcome-section">
+            <div class="container">
+                <h1 class="welcome-title">ZenFlow Yoga</h1>
+                <h2 class="welcome-subtitle">Tu portal hacia el equilibrio y la armonía interior</h2>
+                <p class="welcome-description">
+                    Descubre el mejor estudio de yoga, 
+                    reserva tu clase favorita y disfruta de experiencias únicas para fortalecer y cuidar tu cuerpo y mente.
+                </p>
+            </div>
+        </section>
+
+        <!-- Sección de Próximas Clases -->
+        <section class="proximas-clases-section">
+            <div class="container">
+                <h2 class="section-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    Próximas Clases
+                </h2>
+                <p class="section-subtitle">Las clases más cercanas para que reserves tu lugar</p>
+
+                {% if clases_proximas %}
+                <div class="clases-grid">
+                    {% for clase in clases_proximas %}
+                    <div class="clase-card">
+                        <div class="clase-fecha">
+                            <span class="dia">{{ clase.fecha_dia }}</span>
+                            <span class="fecha-completa">{{ clase.fecha_formateada }}</span>
+                        </div>
+                        <div class="clase-info">
+                            <h3 class="clase-titulo">
+                                {{ clase.title }}
+                                {% if clase.is_hibrida %}
+                                <span class="badge-modalidad hibrida">
+                                    <i class="fas fa-laptop-house"></i> Híbrida
+                                </span>
+                                {% else %}
+                                <span class="badge-modalidad presencial">
+                                    <i class="fas fa-users"></i> Presencial
+                                </span>
+                                {% endif %}
+                            </h3>
+                            <div class="clase-detalles">
+                                <span class="detalle">
+                                    <i class="fas fa-clock"></i> {{ clase.hora }}
+                                </span>
+                                <span class="detalle">
+                                    <i class="fas fa-hourglass-half"></i> {{ clase.duracion }} min
+                                </span>
+                                <span class="detalle">
+                                    <i class="fas fa-map-marker-alt"></i> {{ clase.ubicacion }}
+                                </span>
+                                <span class="detalle">
+                                    <i class="fas fa-chalkboard-teacher"></i> {{ clase.instructor }}
+                                </span>
+                                {% if clase.is_hibrida and clase.meet_link %}
+                                <span class="detalle meet-link">
+                                    <i class="fas fa-video"></i> 
+                                    <a href="{{ clase.meet_link }}" target="_blank" class="meet-link-text">Google Meet</a>
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div class="clase-cupos">
+                                <span class="badge {% if clase.cupos_disponibles > 3 %}badge-success{% elif clase.cupos_disponibles > 0 %}badge-warning{% else %}badge-danger{% endif %}">
+                                    <i class="fas fa-users"></i> {{ clase.cupos_disponibles }} cupos disponibles
+                                </span>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('reservas') }}" class="btn-reservar">
+                            <i class="fas fa-calendar-check"></i>
+                            Ir a Reservas
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="no-clases">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>No hay clases próximas disponibles</p>
+                </div>
+                {% endif %}
+
+                <div class="ver-mas">
+                    <a href="{{ url_for('reservas') }}" class="btn-ver-todas">
+                        Ver todas las clases <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Pie de pagina -->
+    <footer class="footer"></footer>
+    
+    <script>
+        const rutas = {
+            index: "{{ url_for('index') }}",
+            reservas: "{{ url_for('reservas') }}",
+            login: "{{ url_for('login') }}",
+            admin: "{{url_for('admin')}}",
+            yogui:"{{url_for('yogui')}}",
+            instructor:"{{url_for('instructor')}}",
+            contacto: "{{ url_for('contacto') }}",
+            paquete:"{{url_for('paquetes')}}",
+            loginY: "{{ logYogui | tojson }}",
+            loginS: "{{ LogShala | tojson }}",
+            loginI: "{{ LogInst | tojson }}"
+        };
+    </script>
+    
+    <!-- Script para detectar inicio de sesión -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verificar si debe mostrar bienvenida
+        const mostrarBienvenida = {{ 'true' if mostrar_bienvenida else 'false' }};
+        const nombreUsuario = "{{ nombre_usuario|escape }}";
+        
+        if (mostrarBienvenida && nombreUsuario && nombreUsuario !== "") {
+            sessionStorage.setItem('sesion_iniciada', 'true');
+            sessionStorage.setItem('nombre_usuario', nombreUsuario);
+        }
+    });
+    </script>
+    
+    <!-- Script del header y footer -->
+    <script src="static/js/header-footer-dinamico.js"></script>
+
+    <!-- Iconos de Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    
+    <!-- Script personalizado -->
+    <script src="static/js/script.js"></script>
+</body>
+</html>

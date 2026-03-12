@@ -1,0 +1,203 @@
+/* static/css/alerts.css */
+.alert {
+    padding: 16px 20px;
+    margin: 20px auto;
+    border-radius: var(--border-radius);
+    text-align: center;
+    max-width: 600px;
+    animation: slideIn 0.5s ease, fadeOut 0.5s ease 4.5s forwards;
+    box-shadow: var(--shadow);
+    font-weight: 500;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, var(--success-color), #7aa87a);
+    color: white;
+    border-left: 4px solid #5f8b5f;
+}
+
+.alert-error {
+    background: linear-gradient(135deg, var(--danger-color), #d67a7a);
+    color: white;
+    border-left: 4px solid #b45c5c;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, var(--warning-color), #ffd147);
+    color: var(--text-color);
+    border-left: 4px solid #e6b82e;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, var(--primary-light), #9fc7c0);
+    color: var(--text-color);
+    border-left: 4px solid var(--primary-dark);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Para mensajes flash específicos del login/registro */
+.alert-flash {
+    position: relative;
+    overflow: hidden;
+}
+
+.alert-flash::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.3);
+    animation: progress 5s linear forwards;
+}
+
+@keyframes progress {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+/* ===== NOTIFICACIONES DE SESIÓN CENTRADAS ===== */
+.notificacion-sesion {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    min-width: 320px;
+    max-width: 400px;
+    animation: notificacion-entrada 0.5s ease forwards;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.notificacion-contenido {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    background: white;
+    border-left: 4px solid;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(138, 169, 164, 0.2);
+}
+
+.notificacion-exito .notificacion-contenido {
+    border-left-color: #8aa9a4;
+    background: linear-gradient(135deg, white, #f0f7f5);
+}
+
+.notificacion-info .notificacion-contenido {
+    border-left-color: #dab6b0;
+    background: linear-gradient(135deg, white, #fdf5f3);
+}
+
+.notificacion-icono {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 1.8rem;
+}
+
+.notificacion-exito .notificacion-icono {
+    color: #8aa9a4;
+    background: rgba(138, 169, 164, 0.1);
+}
+
+.notificacion-info .notificacion-icono {
+    color: #dab6b0;
+    background: rgba(218, 182, 176, 0.1);
+}
+
+.notificacion-texto {
+    flex: 1;
+}
+
+.notificacion-texto strong {
+    display: block;
+    color: #4a5b5b;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.notificacion-texto span {
+    display: block;
+    color: #6b7f7f;
+    font-size: 0.85rem;
+}
+
+.notificacion-cerrar {
+    background: none;
+    border: none;
+    color: #b8a9a0;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.notificacion-cerrar:hover {
+    color: #dc3545;
+    transform: scale(1.1);
+}
+
+@keyframes notificacion-entrada {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes notificacion-salida {
+    from {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -20px);
+    }
+}
+
+.notificacion-salida {
+    animation: notificacion-salida 0.5s ease forwards;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .notificacion-sesion {
+        top: 70px;
+        min-width: auto;
+        width: 90%;
+    }
+}

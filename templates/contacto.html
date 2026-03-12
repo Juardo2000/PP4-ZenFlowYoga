@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧘</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/header-footer.css">
+    <link rel="stylesheet" href="static/css/contacto.css">
+    <link rel="stylesheet" href="static/css/alerts.css">
+    <title>Contacto - ZenFlow Yoga</title>
+</head>
+<body>
+    <!-- Encabezado -->
+    <header></header>
+
+    <main class="contacto-main">
+        <!-- CUADRO DIVIDIDO EN DOS MITADES -->
+        <div class="cuadro-contacto">
+            
+            <!-- MITAD IZQUIERDA: Redes sociales -->
+            <div class="mitad-izquierda">
+                <h2 class="titulo-izquierda">Redes Sociales</h2>
+                
+                <div class="redes-grid">
+                    <!-- WhatsApp -->
+                    <a href="https://web.whatsapp.com" target="_blank" rel="noopener noreferrer" class="red-item">
+                        <ion-icon name="logo-whatsapp" class="red-icon whatsapp"></ion-icon>
+                        <span class="red-nombre">WhatsApp</span>
+                    </a>
+
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" class="red-item">
+                        <ion-icon name="logo-instagram" class="red-icon instagram"></ion-icon>
+                        <span class="red-nombre">Instagram</span>
+                    </a>
+
+                    <!-- Facebook -->
+                    <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" class="red-item">
+                        <ion-icon name="logo-facebook" class="red-icon facebook"></ion-icon>
+                        <span class="red-nombre">Facebook</span>
+                    </a>
+
+                    <!-- TikTok -->
+                    <a href="https://www.tiktok.com" target="_blank" rel="noopener noreferrer" class="red-item">
+                        <ion-icon name="logo-tiktok" class="red-icon tiktok"></ion-icon>
+                        <span class="red-nombre">TikTok</span>
+                    </a>
+
+                    <!-- EMAIL - Ahora abre cliente de correo con dirección predefinida -->
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=rivas.alvarez.juan@gmail.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="red-item">
+                        <ion-icon name="mail-outline" class="red-icon email"></ion-icon>
+                        <span class="red-nombre">Email</span>
+                    </a>
+
+                    <!-- YouTube -->
+                    <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="red-item">
+                        <ion-icon name="logo-youtube" class="red-icon youtube"></ion-icon>
+                        <span class="red-nombre">YouTube</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- MITAD DERECHA: Mensaje -->
+            <div class="mitad-derecha">
+                <div class="contenido-derecha">
+                    <ion-icon name="chatbubbles-outline" class="icono-mensaje"></ion-icon>
+                    <h2 class="titulo-derecha">¡Conéctate!</h2>
+                    <p class="mensaje-derecha">
+                        Mantente al día con todas nuestras novedades, 
+                        clases especiales y contenido exclusivo siguiéndonos 
+                        en nuestras redes sociales.
+                    </p>
+                    <div class="decoracion-derecha">
+                        <span class="circulo"></span>
+                        <span class="circulo"></span>
+                        <span class="circulo"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información de contacto DEBAJO del cuadro -->
+        <div class="info-contacto">
+            <ion-icon name="location-outline"></ion-icon> Caracas, Venezuela 
+            <ion-icon name="call-outline"></ion-icon> +58 212-1234567
+        </div>
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="footer"></footer>
+
+    <script>
+        const rutas = {
+            index: "{{ url_for('index') }}",
+            reservas: "{{ url_for('reservas') }}",
+            contacto: "{{ url_for('contacto') }}",
+            yogui:"{{url_for('yogui')}}",
+            login: "{{ url_for('login') }}",
+            admin: "{{url_for('admin')}}",
+            instructor:"{{url_for('instructor')}}",
+            paquete:"{{url_for('paquetes')}}",
+            loginY: "{{ logYogui | tojson }}",
+            loginS: "{{ LogShala | tojson }}",
+            loginI: "{{ LogInst | tojson }}"
+        };
+    </script>
+
+    <script src="static/js/header-footer-dinamico.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

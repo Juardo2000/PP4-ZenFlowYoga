@@ -1,0 +1,772 @@
+/* static/css/yogui.css */
+.panel-yogui {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* Header del panel */
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(138, 169, 164, 0.1);
+}
+
+.welcome-box h1 {
+    font-size: 2rem;
+    color: #4a5b5b;
+    margin-bottom: 10px;
+    font-family: 'Playfair Display', serif;
+}
+
+.yogui-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #8aa9a4, #dab6b0);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.stats-card {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(138, 169, 164, 0.1);
+    min-width: 150px;
+}
+
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #8aa9a4;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.stats-label {
+    color: #6b7f7f;
+    font-size: 0.9rem;
+}
+
+/* Mensajes flash */
+.flash-message {
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    animation: fadeIn 0.5s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.flash-success {
+    background: #d4edda;
+    color: #155724;
+    border-left: 4px solid #28a745;
+}
+
+.flash-error {
+    background: #f8d7da;
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== PESTAÑAS ===== */
+.tabs-container {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(138, 169, 164, 0.1);
+    margin-top: 30px;
+}
+
+.tabs-nav {
+    display: flex;
+    background: #f8f4f0;
+    border-bottom: 2px solid #e8e0d9;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 20px;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6b7f7f;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.tab-btn:hover {
+    background: #f0e8e0;
+}
+
+.tab-btn.active {
+    color: #8aa9a4;
+    border-bottom: 3px solid #8aa9a4;
+    background: white;
+}
+
+.tab-content {
+    display: none;
+    padding: 30px;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+/* ===== RESERVAS ===== */
+.reservas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.reserva-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(138, 169, 164, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #e8e0d9;
+}
+
+.reserva-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(138, 169, 164, 0.15);
+}
+
+.reserva-header {
+    background: linear-gradient(135deg, #8aa9a4, #dab6b0);
+    color: white;
+    padding: 20px;
+}
+
+.reserva-header h3 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.reserva-header p {
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.reserva-body {
+    padding: 20px;
+}
+
+.reserva-detalle {
+    margin-bottom: 20px;
+}
+
+.detalle-item {
+    display: flex;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    align-items: center;
+    gap: 10px;
+}
+
+.detalle-label {
+    font-weight: 600;
+    min-width: 110px;
+    color: #4a5b5b;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.detalle-label i {
+    color: #8aa9a4;
+    width: 18px;
+}
+
+.detalle-valor {
+    color: #6b7f7f;
+}
+
+.reserva-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: #d4edda;
+    color: #155724;
+    margin: 10px 0 15px;
+}
+
+.btn-cancelar-reserva {
+    width: 100%;
+    padding: 12px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 1rem;
+}
+
+.btn-cancelar-reserva:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+}
+
+/* ===== PERFIL ===== */
+.perfil-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+/* Las dos primeras tarjetas en fila con igual altura */
+.perfil-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    width: 100%;
+    max-width: 1000px;
+    align-items: stretch;  /* Hace que las tarjetas tengan la misma altura */
+}
+
+.perfil-card {
+    background: #faf7f2;
+    border-radius: 16px;
+    padding: 30px;
+    border: 1px solid #e8e0d9;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.perfil-card:hover {
+    box-shadow: 0 8px 25px rgba(138, 169, 164, 0.15);
+}
+
+.perfil-titulo {
+    color: #4a5b5b;
+    font-size: 1.3rem;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e8e0d9;
+}
+
+.perfil-titulo i {
+    color: #8aa9a4;
+    font-size: 1.3rem;
+}
+
+.perfil-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;  /* Ocupa todo el espacio disponible */
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #4a5b5b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+}
+
+.form-group label i {
+    color: #8aa9a4;
+    width: 18px;
+    font-size: 1rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e8e0d9;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #8aa9a4;
+    box-shadow: 0 0 0 3px rgba(138, 169, 164, 0.1);
+}
+
+.form-input.readonly {
+    background: #f0e8e0;
+    color: #6b7f7f;
+    cursor: not-allowed;
+    border-color: #d9c5b8;
+}
+
+.field-hint {
+    font-size: 0.85rem;
+    color: #6b7f7f;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+.btn-guardar {
+    width: 100%;
+    padding: 14px;
+    background: #8aa9a4;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: auto;  /* Empuja el botón hacia abajo */
+    box-sizing: border-box;
+}
+
+.btn-guardar:hover {
+    background: #5d7c77;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(138, 169, 164, 0.3);
+}
+
+.btn-guardar i {
+    font-size: 1rem;
+}
+
+/* Tarjeta de peligro centrada */
+.perfil-card.peligro {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border: 2px solid #dc3545;
+    background: #fff8f8;
+    display: block;  /* Reseteamos el flex para esta tarjeta */
+    padding: 30px;
+}
+
+.perfil-card.peligro:hover {
+    border-color: #c82333;
+    box-shadow: 0 8px 25px rgba(220, 53, 69, 0.15);
+}
+
+.perfil-titulo.peligro {
+    color: #dc3545;
+    border-bottom-color: #dc3545;
+}
+
+.perfil-titulo.peligro i {
+    color: #dc3545;
+}
+
+.peligro-descripcion {
+    color: #6b7f7f;
+    margin-bottom: 25px;
+    line-height: 1.6;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.btn-peligro {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    padding: 14px 20px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-peligro:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+}
+
+.btn-peligro i {
+    font-size: 1rem;
+}
+
+/* ===== MODAL ===== */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 35px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: slideUp 0.3s ease;
+    border: 1px solid #e8e0d9;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e8e0d9;
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    color: #4a5b5b;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.modal-header h2 i {
+    font-size: 1.5rem;
+}
+
+.modal-close {
+    font-size: 32px;
+    cursor: pointer;
+    color: #6b7f7f;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: #dc3545;
+    transform: scale(1.1);
+}
+
+.modal-body {
+    margin-bottom: 20px;
+}
+
+.alerta-roja {
+    background: #f8d7da;
+    border: 2px solid #dc3545;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #721c24;
+}
+
+.alerta-roja i {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: #dc3545;
+}
+
+.alerta-roja p {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.modal-body ul {
+    margin-left: 20px;
+    margin-bottom: 20px;
+    color: #4a5b5b;
+    line-height: 1.6;
+}
+
+.modal-body ul li {
+    margin-bottom: 5px;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.btn-secondary {
+    background: #6b7f7f;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.btn-secondary:hover {
+    background: #4a5b5b;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(75, 85, 85, 0.3);
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+}
+
+/* ===== ESTADO VACÍO ===== */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 20px;
+    grid-column: 1 / -1;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: #8aa9a4;
+    opacity: 0.3;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    color: #4a5b5b;
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.empty-state p {
+    color: #6b7f7f;
+    margin-bottom: 20px;
+}
+
+.btn-reservar {
+    display: inline-block;
+    padding: 12px 30px;
+    background: #8aa9a4;
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-reservar:hover {
+    background: #5d7c77;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(138, 169, 164, 0.3);
+}
+
+.btn-reservar i {
+    margin-right: 5px;
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .panel-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 25px;
+    }
+    
+    .welcome-box h1 {
+        font-size: 1.8rem;
+    }
+    
+    .stats-card {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .tabs-nav {
+        flex-direction: column;
+    }
+    
+    .tab-btn {
+        padding: 15px;
+    }
+    
+    .reservas-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .detalle-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .detalle-label {
+        min-width: auto;
+    }
+    
+    .perfil-row {
+        grid-template-columns: 1fr;  /* En móvil, una columna */
+        gap: 20px;
+    }
+    
+    .perfil-card {
+        padding: 25px;
+    }
+    
+    .perfil-card.peligro {
+        max-width: 100%;  /* En móvil ocupa todo el ancho */
+        padding: 25px;
+    }
+    
+    .btn-peligro {
+        max-width: 100%;
+    }
+    
+    .modal-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-secondary, .btn-danger {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .panel-yogui {
+        padding: 20px 10px;
+    }
+    
+    .panel-header {
+        padding: 20px;
+    }
+    
+    .stats-card {
+        min-width: auto;
+        padding: 20px;
+    }
+    
+    .stats-number {
+        font-size: 2rem;
+    }
+    
+    .tab-content {
+        padding: 20px 15px;
+    }
+    
+    .reserva-card {
+        margin: 0;
+    }
+    
+    .perfil-titulo {
+        font-size: 1.1rem;
+    }
+    
+    .modal-content {
+        padding: 25px 20px;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.3rem;
+    }
+    
+    .alerta-roja i {
+        font-size: 2.5rem;
+    }
+    
+    .alerta-roja p {
+        font-size: 1rem;
+    }
+}

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧘</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/header-footer.css">
+    <link rel="stylesheet" href="static/css/instructor.css">
+    <link rel="stylesheet" href="static/css/alerts.css">
+    <title>Instructor - Yoga Studio</title>
+</head>
+<body>
+    <!-- Encabezado -->
+    <header></header>
+
+    <div class="dashboard">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="welcome-box">
+                <h1>Panel de Instructor</h1>
+                <p>Bienvenido de nuevo, <strong>{{ nombre }}</strong></p>
+                <div class="instructor-badge">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    Instructor Certificado
+                </div>
+            </div>
+            <div>
+                <a href="{{ url_for('reservas') }}" class="btn btn-primary">
+                    <i class="fas fa-calendar-week"></i>
+                    Ver Calendario General
+                </a>
+            </div>
+        </div>
+
+        <!-- Mensajes Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">
+                        <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Estadísticas -->
+        <div class="stats-grid">
+            <div class="stat-card card">
+                <div class="stat-number">{{ clases_futuras|length }}</div>
+                <div class="stat-label">Clases Programadas</div>
+            </div>
+            <div class="stat-card card">
+                <div class="stat-number">{{ total_alumnos }}</div>
+                <div class="stat-label">Alumnos Inscritos</div>
+            </div>
+            <div class="stat-card card">
+                <div class="stat-number">{{ ocupacion_promedio }}%</div>
+                <div class="stat-label">Ocupación Promedio</div>
+            </div>
+            <div class="stat-card card">
+                <div class="stat-number">
+                    {% if instructor_info and instructor_info[5] %}
+                        {{ instructor_info[5] }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </div>
+                <div class="stat-label">Teléfono</div>
+            </div>
+        </div>
+
+        <!-- Pestañas -->
+        <div class="tabs-container card">
+            <nav class="tabs-nav">
+                <button class="tab-btn active" data-tab="agregar">
+                    <i class="fas fa-plus-circle"></i>
+                    Nueva Clase
+                </button>
+                <button class="tab-btn" data-tab="mis-clases">
+                    <i class="fas fa-calendar-alt"></i>
+                    Mis Clases
+                </button>
+                <button class="tab-btn" data-tab="historial">
+                    <i class="fas fa-history"></i>
+                    Historial
+                </button>
+            </nav>
+
+            <!-- Contenido: Agregar Clase -->
+            <div id="agregar" class="tab-content active">
+                <div class="form-card card">
+                    <h2 class="form-title">
+                        <i class="fas fa-calendar-plus"></i>
+                        Programar Nueva Clase
+                    </h2>
+                    
+                    <form method="POST" action="{{ url_for('instructor') }}" id="classForm">
+                        <input type="hidden" name="action" value="add_class">
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="title">
+                                    <i class="fas fa-heading"></i>
+                                    Título de la Clase *
+                                </label>
+                                <input type="text" id="title" name="title" class="form-input" required 
+                                       placeholder="Ej: Vinyasa Flow para Principiantes">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="date">
+                                    <i class="fas fa-calendar-day"></i>
+                                    Fecha *
+                                </label>
+                                <input type="date" id="date" name="date" class="form-input" required 
+                                       min="{{ hoy }}">
+                            </div>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="start_time">
+                                    <i class="fas fa-clock"></i>
+                                    Hora de Inicio *
+                                </label>
+                                <input type="time" id="start_time" name="start_time" class="form-input" required 
+                                       min="09:00" max="21:00">
+                                <small class="field-hint">
+                                    Horario del estudio: 9:00 AM - 9:00 PM
+                                </small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="duration">
+                                    <i class="fas fa-hourglass-half"></i>
+                                    Duración *
+                                </label>
+                                <select id="duration" name="duration" class="form-input" required>
+                                    <option value="60">60 minutos</option>
+                                    <option value="75">75 minutos</option>
+                                    <option value="90">90 minutos</option>
+                                    <option value="120">120 minutos</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="recurrence">
+                                    <i class="fas fa-repeat"></i>
+                                    Repetir clase
+                                </label>
+                                <select id="recurrence" name="recurrence" class="form-input">
+                                    <option value="none">No repetir (solo una vez)</option>
+                                    <option value="weekly_4">Semanal por 1 mes (4 clases)</option>
+                                    <option value="weekly_8">Semanal por 2 meses (8 clases)</option>
+                                    <option value="weekly_12">Semanal por 3 meses (12 clases)</option>
+                                    <option value="weekly_16">Semanal por 4 meses (16 clases)</option>
+                                </select>
+                                <small class="field-hint">
+                                    Las clases se crearán automáticamente el mismo día de la semana a la misma hora
+                                </small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="type">
+                                    <i class="fas fa-tag"></i>
+                                    Tipo de Yoga
+                                </label>
+                                <select id="type" name="type" class="form-input">
+                                    <option value="Vinyasa">Vinyasa</option>
+                                    <option value="Hatha">Hatha</option>
+                                    <option value="Ashtanga">Ashtanga</option>
+                                    <option value="Yin">Yin</option>
+                                    <option value="Restaurativo">Restaurativo</option>
+                                    <option value="Meditación">Meditación</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="level">
+                                    <i class="fas fa-signal"></i>
+                                    Nivel
+                                </label>
+                                <select id="level" name="level" class="form-input">
+                                    <option value="Todos">Todos los niveles</option>
+                                    <option value="Principiante">Principiante</option>
+                                    <option value="Intermedio">Intermedio</option>
+                                    <option value="Avanzado">Avanzado</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="capacity">
+                                    <i class="fas fa-users"></i>
+                                    Capacidad Máxima *
+                                </label>
+                                <input type="number" id="capacity" name="capacity" class="form-input" required 
+                                       min="1" max="30" value="20">
+                                <small class="field-hint">
+                                    Máximo 30 personas por clase
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    Ubicación
+                                </label>
+                                <select id="location" name="location" class="form-input">
+                                    <option value="Estudio Principal">Estudio Principal</option>
+                                    <option value="Sala de Meditación">Sala de Meditación</option>
+                                    <option value="Jardín">Jardín</option>
+                                    <option value="Sala 2">Sala 2</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="is_hibrida">
+                                    <i class="fas fa-laptop-house"></i>
+                                    Modalidad de la clase
+                                </label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="is_hibrida" value="false" checked>
+                                        <i class="fas fa-users" style="color: #667eea;"></i>
+                                        Presencial
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="is_hibrida" value="true">
+                                        <i class="fas fa-laptop-house" style="color: #f59e0b;"></i>
+                                        Híbrida (Google Meet incluido)
+                                    </label>
+                                </div>
+                                <small class="field-hint">
+                                    * Presencial: Clase física en el estudio<br>
+                                    * Híbrida: Presencial + transmisión en vivo por Google Meet
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="description">
+                                <i class="fas fa-file-alt"></i>
+                                Descripción (Opcional)
+                            </label>
+                            <textarea id="description" name="description" class="form-input" rows="4" 
+                                      placeholder="Describe tu clase, incluye requisitos, beneficios, etc..."></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-calendar-check"></i>
+                                Programar Clase
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Contenido: Mis Clases -->
+            <div id="mis-clases" class="tab-content">
+                <h2 class="form-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    Mis Clases Programadas
+                </h2>
+                
+                {% if clases_futuras %}
+                <div class="classes-list">
+                    {% for clase in clases_futuras %}
+                    <div class="class-card card">
+                        <div class="class-header">
+                            <div>
+                                <h3 class="class-title">
+                                    {{ clase.title }}
+                                    {% if clase.is_hibrida %}
+                                        <span class="hybrid-badge">
+                                            <i class="fas fa-laptop-house"></i> Híbrida
+                                        </span>
+                                    {% endif %}
+                                </h3>
+                                <div class="class-meta">
+                                    <span class="meta-item">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ clase.date }}
+                                    </span>
+                                    <span class="meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        {{ clase.time }}
+                                    </span>
+                                    <span class="meta-item">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        {{ clase.duration }} min
+                                    </span>
+                                    <span class="meta-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ clase.location }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="class-status">
+                                {% set asistentes = clase.current_attendees|default(0) %}
+                                {% set capacidad = clase.capacity|default(20) %}
+                                {% if clase.available_spots is defined %}
+                                    {% set spots = clase.available_spots %}
+                                {% else %}
+                                    {% set spots = capacidad - asistentes %}
+                                {% endif %}
+                                
+                                {% if spots > 10 %}
+                                <span class="badge badge-success">
+                                    <i class="fas fa-users"></i>
+                                    {{ asistentes }}/{{ capacidad }}
+                                </span>
+                                {% elif spots > 0 %}
+                                <span class="badge badge-warning">
+                                    <i class="fas fa-users"></i>
+                                    {{ asistentes }}/{{ capacidad }}
+                                </span>
+                                {% else %}
+                                <span class="badge badge-danger">
+                                    <i class="fas fa-users"></i>
+                                    Lleno
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if clase.description %}
+                        <p class="class-description">
+                            {{ clase.description[:150] }}{% if clase.description|length > 150 %}...{% endif %}
+                        </p>
+                        {% endif %}
+                        
+                        <div class="class-actions">
+                            <button class="btn-icon" onclick="editarClase('{{ clase.event_id }}')" title="Editar clase">
+                                <i class="fas fa-edit"></i>
+                            </button> 
+                            
+                            <button class="btn-icon" onclick="viewClassDetails('{{ clase.event_id }}')" title="Ver detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            
+                            <form method="POST" action="{{ url_for('instructor') }}" style="display: inline;">
+                                <input type="hidden" name="action" value="cancel_class">
+                                <input type="hidden" name="event_id" value="{{ clase.event_id }}">
+                                <button type="submit" class="btn-icon delete" 
+                                        onclick="return confirm('¿Cancelar esta clase? Se devolverán las clases a los alumnos inscritos y la clase será eliminada.')"
+                                        title="Cancelar clase">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <h3>No hay clases programadas</h3>
+                    <p>Agrega tu primera clase usando la pestaña "Nueva Clase"</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Contenido: Historial -->
+            <div id="historial" class="tab-content">
+                <h2 class="form-title">
+                    <i class="fas fa-history"></i>
+                    Historial de Clases
+                </h2>
+                
+                {% if clases_pasadas %}
+                <div class="classes-list">
+                    {% for clase in clases_pasadas %}
+                    <div class="class-card historial-card card">
+                        <div class="class-header">
+                            <div>
+                                <h3 class="class-title">
+                                    {{ clase.title }}
+                                    {% if clase.is_hibrida %}
+                                        <span class="hybrid-badge">
+                                            <i class="fas fa-laptop-house"></i> Híbrida
+                                        </span>
+                                    {% endif %}
+                                </h3>
+                                <div class="class-meta">
+                                    <span class="meta-item">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ clase.date }}
+                                    </span>
+                                    <span class="meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        {{ clase.time }}
+                                    </span>
+                                    <span class="meta-item">
+                                        <i class="fas fa-users"></i>
+                                        {{ clase.current_attendees|default(0) }} alumnos
+                                    </span>
+                                </div>
+                            </div>
+                            <span class="badge historial-badge">
+                                Completada
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>No hay historial de clases</h3>
+                    <p>Las clases que impartas aparecerán aquí después de su fecha</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Clase -->
+    <div id="modalEditarClase" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Editar Clase</h3>
+                <span class="modal-close" onclick="cerrarModalEditar()">&times;</span>
+            </div>
+            
+            <form id="formEditarClase" onsubmit="return guardarEdicionClase(event)">
+                <input type="hidden" id="edit-event-id" name="event_id">
+                
+                <div class="form-group">
+                    <label class="form-label" for="edit-title">
+                        <i class="fas fa-heading"></i> Título de la Clase *
+                    </label>
+                    <input type="text" id="edit-title" name="title" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="edit-datetime">
+                        <i class="fas fa-calendar-day"></i> Fecha y Hora *
+                    </label>
+                    <input type="datetime-local" id="edit-datetime" name="start_datetime" class="form-input" required step="60">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="edit-duration">
+                        <i class="fas fa-hourglass-half"></i> Duración (minutos)
+                    </label>
+                    <select id="edit-duration" name="duration" class="form-input">
+                        <option value="60">60 minutos</option>
+                        <option value="75">75 minutos</option>
+                        <option value="90">90 minutos</option>
+                        <option value="120">120 minutos</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="edit-location">
+                        <i class="fas fa-map-marker-alt"></i> Ubicación
+                    </label>
+                    <select id="edit-location" name="location" class="form-input">
+                        <option value="Estudio Principal">Estudio Principal</option>
+                        <option value="Sala de Meditación">Sala de Meditación</option>
+                        <option value="Jardín">Jardín</option>
+                        <option value="Sala 2">Sala 2</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="edit-description">
+                        <i class="fas fa-file-alt"></i> Descripción
+                    </label>
+                    <textarea id="edit-description" name="description" class="form-input" rows="4"></textarea>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalEditar()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+            
+            <div class="info-box">
+                <p>
+                    <i class="fas fa-info-circle"></i>
+                    Los alumnos inscritos recibirán una notificación con los cambios realizados.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Google Meet -->
+    <div id="meetModal" class="modal">
+        <div class="modal-content text-center">
+            <h3><i class="fas fa-video"></i> Google Meet</h3>
+            <p id="meetMessage">Preparando tu clase online...</p>
+            <div id="meetLinkContainer" class="meet-link-container" style="display: none;">
+                <a id="meetLink" href="#" target="_blank" class="btn-meet-link">
+                    <i class="fas fa-external-link-alt"></i> Abrir Google Meet
+                </a>
+                <div class="mt-15">
+                    <button onclick="copyMeetLink()" class="btn-copy">
+                        <i class="fas fa-copy"></i> Copiar enlace
+                    </button>
+                </div>
+            </div>
+            <div class="mt-20">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="sendReminders">
+                    Enviar recordatorio a los alumnos
+                </label>
+            </div>
+            <div class="mt-25">
+                <button onclick="closeMeetModal()" class="btn btn-secondary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pie de pagina -->
+    <footer class="footer"></footer>
+    
+    <script>
+        const rutas = {
+            index: "{{ url_for('index') }}",
+            reservas: "{{ url_for('reservas') }}",
+            login: "{{ url_for('login') }}",
+            yogui:"{{url_for('yogui')}}",
+            admin: "{{url_for('admin')}}",
+            instructor:"{{url_for('instructor')}}",
+            contacto: "{{ url_for('contacto') }}",
+            paquete:"{{url_for('paquetes')}}",
+            loginI: "{{ LogInst | tojson }}"
+        };
+    </script>
+    
+    <script src="static/js/header-footer-dinamico.js"></script>
+    
+    <script>
+        // Tabs functionality
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                button.classList.add('active');
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Form validation for new class
+        document.getElementById('classForm')?.addEventListener('submit', function(e) {
+            const title = document.getElementById('title').value.trim();
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('start_time').value;
+            
+            if (!title || !date || !time) {
+                e.preventDefault();
+                alert('Por favor completa todos los campos obligatorios.');
+                return false;
+            }
+            
+            const selectedDate = new Date(date + 'T' + time);
+            if (selectedDate < new Date()) {
+                e.preventDefault();
+                alert('No puedes programar clases en el pasado.');
+                return false;
+            }
+            
+            return true;
+        });
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date')?.setAttribute('min', today);
+        
+        // Funciones para editar clase
+        function editarClase(eventId) {
+            console.log("Editando clase:", eventId);
+            
+            fetch(`/instructor/get-class-data/${eventId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('edit-event-id').value = eventId;
+                        document.getElementById('edit-title').value = data.title;
+                        
+                        const startDateTime = data.start_datetime.replace('Z', '').slice(0, 16);
+                        document.getElementById('edit-datetime').value = startDateTime;
+                        
+                        document.getElementById('edit-duration').value = data.duration || 60;
+                        document.getElementById('edit-location').value = data.location || 'Estudio Principal';
+                        document.getElementById('edit-description').value = data.description || '';
+                        
+                        document.getElementById('modalEditarClase').style.display = 'flex';
+                    } else {
+                        alert('Error cargando datos de la clase: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error de conexión al cargar la clase');
+                });
+        }
+
+        function guardarEdicionClase(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            submitBtn.disabled = true;
+            
+            fetch('/instructor/editar-clase', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    cerrarModalEditar();
+                    location.reload();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error de conexión al guardar');
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+            
+            return false;
+        }
+
+        function cerrarModalEditar() {
+            document.getElementById('modalEditarClase').style.display = 'none';
+        }
+
+        // View class details
+        function viewClassDetails(eventId) {
+            fetch(`/instructor/get-class-data/${eventId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const fecha = new Date(data.start_datetime);
+                        const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        
+                        alert(`📋 Detalles de la clase:\n\n` +
+                              `Título: ${data.title}\n` +
+                              `Fecha: ${fechaFormateada}\n` +
+                              `Duración: ${data.duration} minutos\n` +
+                              `Ubicación: ${data.location}\n` +
+                              `Descripción: ${data.description || 'Sin descripción'}`);
+                    } else {
+                        alert('Error cargando detalles');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error de conexión');
+                });
+        }
+
+        // Funciones para Google Meet
+        function startGoogleMeet(eventId) {
+            const modal = document.getElementById('meetModal');
+            const message = document.getElementById('meetMessage');
+            const linkContainer = document.getElementById('meetLinkContainer');
+            const meetLink = document.getElementById('meetLink');
+            
+            modal.style.display = 'flex';
+            message.textContent = 'Conectando con Google Meet...';
+            linkContainer.style.display = 'none';
+            
+            fetch('/instructor/start-meet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `event_id=${eventId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    message.textContent = '✅ Google Meet listo';
+                    meetLink.href = data.meet_link;
+                    linkContainer.style.display = 'block';
+                    window.open(data.meet_link, '_blank');
+                } else {
+                    message.textContent = '❌ ' + data.message;
+                }
+            })
+            .catch(error => {
+                message.textContent = '❌ Error de conexión';
+                console.error('Error:', error);
+            });
+        }
+
+        function sendMeetReminder(eventId) {
+            if (!confirm('¿Enviar recordatorio de Google Meet a todos los alumnos inscritos en esta clase híbrida?')) {
+                return;
+            }
+            
+            fetch('/instructor/send-meet-reminders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `event_id=${eventId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('❌ Error de conexión');
+                console.error('Error:', error);
+            });
+        }
+
+        function copyMeetLink() {
+            const link = document.getElementById('meetLink').href;
+            navigator.clipboard.writeText(link)
+                .then(() => alert('✅ Enlace copiado al portapapeles'))
+                .catch(err => alert('❌ Error al copiar'));
+        }
+
+        function closeMeetModal() {
+            document.getElementById('meetModal').style.display = 'none';
+        }
+
+        // Cerrar modales al hacer clic fuera
+        window.onclick = function(event) {
+            const modals = ['modalEditarClase', 'meetModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

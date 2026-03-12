@@ -1,0 +1,232 @@
+/* static/css/contacto.css */
+.contacto-main {
+    min-height: 80vh;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #faf7f2 0%, #f5efe9 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* CUADRO PRINCIPAL dividido en dos mitades */
+.cuadro-contacto {
+    width: 900px;
+    height: 500px;
+    background: white;
+    border: 3px solid #d9c5b8;
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+}
+
+/* MITAD IZQUIERDA - Redes sociales */
+.mitad-izquierda {
+    width: 50%;
+    height: 100%;
+    background: #ffffff;
+    padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid #f0e0d8;
+}
+
+.titulo-izquierda {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: #4a5b5b;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* Grid de redes sociales */
+.redes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    flex: 1;
+}
+
+/* Cada item de red social */
+.red-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    padding: 15px 10px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    background: #faf7f2;
+    border: 2px solid transparent;
+}
+
+.red-item:hover {
+    background: white;
+    border-color: #8aa9a4;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(138, 169, 164, 0.15);
+}
+
+/* Icono de la red */
+.red-icon {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+}
+
+/* Colores de iconos */
+.whatsapp { color: #25D366; }
+.instagram { color: #E4405F; }
+.facebook { color: #1877F2; }
+.tiktok { color: #000000; }
+.email { color: #8aa9a4; }
+.youtube { color: #FF0000; }
+
+/* Nombre de la red */
+.red-nombre {
+    font-size: 0.9rem;
+    color: #4a5b5b;
+    font-weight: 500;
+}
+
+/* MITAD DERECHA - Mensaje */
+.mitad-derecha {
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(135deg, #8aa9a4 0%, #dab6b0 100%);
+    padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+}
+
+.contenido-derecha {
+    max-width: 280px;
+}
+
+.icono-mensaje {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    color: white;
+    opacity: 0.9;
+}
+
+.titulo-derecha {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.mensaje-derecha {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    opacity: 0.95;
+}
+
+.decoracion-derecha {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.circulo {
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.5;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.circulo:nth-child(2) { animation-delay: 0.3s; }
+.circulo:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+/* Información de contacto debajo del cuadro */
+.info-contacto {
+    margin-top: 30px;
+    text-align: center;
+    color: #6b7f7f;
+    font-size: 1rem;
+    font-weight: 400;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
+    border-radius: 50px;
+    border: 1px solid rgba(218, 182, 176, 0.3);
+    display: inline-block;
+}
+
+.info-contacto ion-icon {
+    color: #8aa9a4;
+    margin: 0 5px -2px;
+}
+
+/* Responsive */
+@media (max-width: 950px) {
+    .cuadro-contacto {
+        width: 95%;
+        height: auto;
+        min-height: 500px;
+        flex-direction: column;
+    }
+    
+    .mitad-izquierda,
+    .mitad-derecha {
+        width: 100%;
+        height: auto;
+        min-height: 300px;
+    }
+    
+    .mitad-izquierda {
+        border-right: none;
+        border-bottom: 2px solid #f0e0d8;
+    }
+    
+    .redes-grid {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 500px) {
+    .redes-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .titulo-izquierda {
+        font-size: 1.8rem;
+    }
+    
+    .titulo-derecha {
+        font-size: 1.8rem;
+    }
+    
+    .mensaje-derecha {
+        font-size: 1rem;
+    }
+    
+    .info-contacto {
+        font-size: 0.9rem;
+        padding: 8px 15px;
+    }
+}

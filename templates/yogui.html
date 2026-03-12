@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧘</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/header-footer.css">
+    <link rel="stylesheet" href="static/css/yogui.css">
+    <link rel="stylesheet" href="static/css/alerts.css">
+    <title>Mi Panel - ZenFlow Yoga</title>
+</head>
+<body>
+    <!-- Encabezado -->
+    <header></header>
+
+    <div class="panel-yogui">
+        <!-- Header del panel -->
+        <div class="panel-header">
+            <div class="welcome-box">
+                <h1>Mi Panel de Yogui</h1>
+                <p>Bienvenido de nuevo, <strong>{{ nombre }}</strong></p>
+                <div class="yogui-badge">
+                    <i class="fas fa-spa"></i>
+                    Yogui Activo
+                </div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-number">{{ clases_restantes }}</div>
+                <div class="stats-label">Clases Disponibles</div>
+            </div>
+        </div>
+
+        <!-- Mensajes Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">
+                        <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Pestañas -->
+        <div class="tabs-container">
+            <nav class="tabs-nav">
+                <button class="tab-btn active" data-tab="reservas">
+                    <i class="fas fa-calendar-check"></i>
+                    Mis Reservas ({{ reservas|length }})
+                </button>
+                <button class="tab-btn" data-tab="perfil">
+                    <i class="fas fa-user-circle"></i>
+                    Mi Perfil
+                </button>
+            </nav>
+
+            <!-- Tab: Mis Reservas -->
+            <div id="reservas" class="tab-content active">
+                {% if reservas %}
+                <div class="reservas-grid">
+                    {% for reserva in reservas %}
+                    <div class="reserva-card">
+                        <div class="reserva-header">
+                            <h3>{{ reserva.title }}</h3>
+                            <p><i class="fas fa-map-marker-alt"></i> {{ reserva.location }}</p>
+                        </div>
+                        <div class="reserva-body">
+                            <div class="reserva-detalle">
+                                <div class="detalle-item">
+                                    <span class="detalle-label"><i class="fas fa-calendar"></i> Fecha:</span>
+                                    <span class="detalle-valor">{{ reserva.date }}</span>
+                                </div>
+                                <div class="detalle-item">
+                                    <span class="detalle-label"><i class="fas fa-clock"></i> Hora:</span>
+                                    <span class="detalle-valor">{{ reserva.time }}</span>
+                                </div>
+                                <div class="detalle-item">
+                                    <span class="detalle-label"><i class="fas fa-hourglass-half"></i> Duración:</span>
+                                    <span class="detalle-valor">{{ reserva.duration }} min</span>
+                                </div>
+                                <div class="detalle-item">
+                                    <span class="detalle-label"><i class="fas fa-chalkboard-teacher"></i> Instructor:</span>
+                                    <span class="detalle-valor">{{ reserva.instructor_name }}</span>
+                                </div>
+                            </div>
+                            
+                            {% if reserva.is_hibrida %}
+                            <span class="reserva-badge">
+                                <i class="fas fa-laptop-house"></i> Clase Híbrida
+                            </span>
+                            {% endif %}
+                            
+                            <form method="POST" action="{{ url_for('yogui') }}" onsubmit="return confirm('¿Cancelar esta reserva? Se devolverá 1 clase a tu cuenta.')">
+                                <input type="hidden" name="action" value="cancel_reservation">
+                                <input type="hidden" name="event_id" value="{{ reserva.event_id }}">
+                                <button type="submit" class="btn-cancelar-reserva">
+                                    <i class="fas fa-times"></i>
+                                    Cancelar Reserva
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <h3>No tienes reservas activas</h3>
+                    <p>Explora nuestras clases y reserva tu próxima sesión de yoga.</p>
+                    <a href="{{ url_for('reservas') }}" class="btn-reservar">
+                        <i class="fas fa-search"></i>
+                        Ver Clases Disponibles
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Tab: Mi Perfil -->
+            <div id="perfil" class="tab-content">
+                <div class="perfil-container">
+                    <!-- Fila con las dos primeras tarjetas -->
+                    <div class="perfil-row">
+                        <!-- Tarjeta 1: Editar Datos Personales -->
+                        <div class="perfil-card">
+                            <h2 class="perfil-titulo">
+                                <i class="fas fa-user-edit"></i>
+                                Editar Datos Personales
+                            </h2>
+                            
+                            <form method="POST" action="{{ url_for('yogui') }}" class="perfil-form">
+                                <input type="hidden" name="action" value="update_profile">
+                                
+                                <div class="form-group">
+                                    <label for="nombre">
+                                        <i class="fas fa-user"></i> Nombre
+                                    </label>
+                                    <input type="text" id="nombre" name="nombre" value="{{ datos_usuario.nombre }}" required class="form-input">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="apellido">
+                                        <i class="fas fa-user"></i> Apellido
+                                    </label>
+                                    <input type="text" id="apellido" name="apellido" value="{{ datos_usuario.apellido }}" required class="form-input">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="telefono">
+                                        <i class="fas fa-phone"></i> Teléfono
+                                    </label>
+                                    <input type="tel" id="telefono" name="telefono" value="{{ datos_usuario.telefono }}" required class="form-input">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>
+                                        <i class="fas fa-envelope"></i> Correo Electrónico
+                                    </label>
+                                    <input type="email" value="{{ correo }}" readonly class="form-input readonly">
+                                    <small class="field-hint">El correo no se puede cambiar</small>
+                                </div>
+                                
+                                <button type="submit" class="btn-guardar">
+                                    <i class="fas fa-save"></i>
+                                    Guardar Cambios
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Tarjeta 2: Cambiar Contraseña -->
+                        <div class="perfil-card">
+                            <h2 class="perfil-titulo">
+                                <i class="fas fa-key"></i>
+                                Cambiar Contraseña
+                            </h2>
+                            
+                            <form method="POST" action="{{ url_for('yogui') }}" class="perfil-form">
+                                <input type="hidden" name="action" value="change_password">
+                                
+                                <div class="form-group">
+                                    <label for="password_actual">
+                                        <i class="fas fa-lock"></i> Contraseña Actual
+                                    </label>
+                                    <input type="password" id="password_actual" name="password_actual" required class="form-input">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="password_nueva">
+                                        <i class="fas fa-lock"></i> Nueva Contraseña
+                                    </label>
+                                    <input type="password" id="password_nueva" name="password_nueva" required class="form-input">
+                                    <small class="field-hint">Mínimo 8 caracteres</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="password_confirm">
+                                        <i class="fas fa-lock"></i> Confirmar Nueva Contraseña
+                                    </label>
+                                    <input type="password" id="password_confirm" name="password_confirm" required class="form-input">
+                                </div>
+                                
+                                <button type="submit" class="btn-guardar">
+                                    <i class="fas fa-key"></i>
+                                    Cambiar Contraseña
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta 3: Eliminar Cuenta (centrada) -->
+                    <div class="perfil-card peligro">
+                        <h2 class="perfil-titulo peligro">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Eliminar Cuenta
+                        </h2>
+                        
+                        <p class="peligro-descripcion">
+                            Esta acción es permanente y no se puede deshacer. Se eliminarán todos tus datos, 
+                            reservas y pagos pendientes.
+                        </p>
+                        
+                        <button class="btn-peligro" onclick="mostrarModalEliminarCuenta()">
+                            <i class="fas fa-trash-alt"></i>
+                            Eliminar mi cuenta permanentemente
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para eliminar cuenta -->
+    <div id="modalEliminarCuenta" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i> Eliminar Cuenta</h2>
+                <span class="modal-close" onclick="cerrarModalEliminar()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <div class="alerta-roja">
+                    <i class="fas fa-skull-crosswalk"></i>
+                    <p><strong>¡ATENCIÓN! Esta acción es irreversible</strong></p>
+                </div>
+                
+                <p>Al eliminar tu cuenta:</p>
+                <ul style="margin-left: 20px; margin-bottom: 20px; color: #4a5b5b;">
+                    <li>Se eliminarán todas tus reservas activas</li>
+                    <li>Se eliminarán tus pagos pendientes</li>
+                    <li>Perderás todas tus clases disponibles</li>
+                    <li>No podrás recuperar tus datos</li>
+                </ul>
+                
+                <form method="POST" action="{{ url_for('yogui') }}" id="formEliminarCuenta">
+                    <input type="hidden" name="action" value="delete_account">
+                    
+                    <div class="form-group">
+                        <label for="confirmacion">
+                            Para confirmar, escribe <strong>"ELIMINAR"</strong> en mayúsculas:
+                        </label>
+                        <input type="text" id="confirmacion" name="confirmacion" 
+                               placeholder="ELIMINAR" required class="form-input"
+                               pattern="ELIMINAR" title="Debes escribir ELIMINAR exactamente">
+                    </div>
+                    
+                    <div class="modal-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="cerrarModalEliminar()">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Sí, eliminar mi cuenta</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pie de página -->
+    <footer class="footer"></footer>
+
+    <script>
+        const rutas = {
+            index: "{{ url_for('index') }}",
+            reservas: "{{ url_for('reservas') }}",
+            yogui: "{{ url_for('yogui') }}",
+            login: "{{ url_for('login') }}",
+            contacto: "{{ url_for('contacto') }}",
+            paquete: "{{ url_for('paquetes') }}",
+            loginY: "{{ logYogui | tojson }}"
+        };
+
+        // Tabs functionality
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                button.classList.add('active');
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Funciones para el modal de eliminar cuenta
+        function mostrarModalEliminarCuenta() {
+            document.getElementById('modalEliminarCuenta').style.display = 'flex';
+        }
+
+        function cerrarModalEliminar() {
+            document.getElementById('modalEliminarCuenta').style.display = 'none';
+            document.getElementById('confirmacion').value = '';
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalEliminarCuenta');
+            if (event.target == modal) {
+                cerrarModalEliminar();
+            }
+            
+            // También cerrar otros modales si existen
+            const modals = ['modalEliminarCuenta'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    </script>
+
+    <script src="static/js/header-footer-dinamico.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

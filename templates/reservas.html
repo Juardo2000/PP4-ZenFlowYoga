@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧘</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/header-footer.css">
+    <link rel="stylesheet" href="static/css/reservas.css">
+    <link rel="stylesheet" href="static/css/alerts.css">
+    <title>Reservas - Yoga Studio</title>
+</head>
+<body>
+    <!-- Header dinámico -->
+    <header></header>
+
+    <main class="container">
+        <div class="header">
+            <h1>📅 Reserva de Clases de Yoga</h1>
+            <p>Selecciona una clase de nuestro calendario y reserva tu lugar</p>
+        </div>
+
+        {% if estaLog %}
+        <div class="user-info">
+            <h3>👋 Hola, {{ nombre }}</h3>
+            <p><strong>📧 Correo:</strong> {{ correo }}</p>
+            <p><strong>🎫 Clases disponibles:</strong> <span class="clases-restantes">{{ clases_restantes }}</span></p>
+            {% if clases_restantes == 0 %}
+            <p class="sin-clases">
+                ❌ No tienes clases disponibles. 
+                <a href="{{ url_for('paquetes') }}" class="btn-link">
+                    Compra un paquete aquí
+                </a>
+            </p>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+            <p>🔒 Debes <a href="{{ url_for('login') }}" class="alert-link">iniciar sesión</a> para hacer reservas.</p>
+            <p>Si no tienes cuenta, <a href="{{ url_for('registro') }}" class="alert-link">regístrate aquí</a>.</p>
+        </div>
+        {% endif %}
+
+        <!-- Mensajes flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Filtros -->
+        <div class="filters card">
+            <h3>🔍 Filtrar Clases</h3>
+            <form method="GET" action="{{ url_for('reservas') }}">
+                <div class="filter-group">
+                    <div class="filter-item">
+                        <label for="fecha">📅 Por fecha:</label>
+                        <input type="date" id="fecha" name="fecha" 
+                               value="{{ fecha_filtro }}"
+                               min="{{ hoy }}" class="filter-input">
+                    </div>
+                    
+                    <div class="filter-item">
+                        <label for="instructor">👨‍🏫 Por instructor:</label>
+                        <select id="instructor" name="instructor" class="filter-input">
+                            <option value="">Todos los instructores</option>
+                            {% for instructor in instructores %}
+                            <option value="{{ instructor }}" 
+                                    {% if instructor_filtro == instructor %}selected{% endif %}>
+                                {{ instructor }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-secondary btn-small">
+                        🔍 Aplicar filtros
+                    </button>
+                    <a href="{{ url_for('reservas') }}" class="btn btn-secondary btn-small btn-clear">
+                        🔄 Limpiar filtros
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Lista de clases -->
+        <h2 class="clases-titulo">{{ clases|length }} Clases Disponibles</h2>
+        
+        {% if not clases %}
+        <div class="no-classes card">
+            <div class="calendar-icon">📅</div>
+            <h3>No hay clases disponibles</h3>
+            <p>Intenta con otros filtros o vuelve más tarde.</p>
+            {% if not estaLog %}
+            <p class="mt-20">
+                <a href="{{ url_for('login') }}" class="btn btn-primary">
+                    🔓 Iniciar sesión para ver más clases
+                </a>
+            </p>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="clases-grid">
+            {% for clase in clases %}
+            <div class="clase-card">
+                <div class="clase-fecha">
+                    <span class="dia">{{ clase.fecha_dia if clase.fecha_dia else '' }}</span>
+                    <span class="fecha-completa">{{ clase.fecha_formateada if clase.fecha_formateada else clase.date }}</span>
+                </div>
+                <div class="clase-info">
+                    <h3 class="clase-titulo">
+                        {{ clase.title }}
+                        {% if clase.is_hibrida %}
+                        <span class="badge-modalidad hibrida">
+                            <i class="fas fa-laptop-house"></i> Híbrida
+                        </span>
+                        {% else %}
+                        <span class="badge-modalidad presencial">
+                            <i class="fas fa-users"></i> Presencial
+                        </span>
+                        {% endif %}
+                    </h3>
+                    <div class="clase-detalles">
+                        <span class="detalle">
+                            <i class="fas fa-clock"></i> {{ clase.time }}
+                        </span>
+                        <span class="detalle">
+                            <i class="fas fa-hourglass-half"></i> {{ clase.duration }} min
+                        </span>
+                        <span class="detalle">
+                            <i class="fas fa-map-marker-alt"></i> {{ clase.location }}
+                        </span>
+                        <span class="detalle">
+                            <i class="fas fa-chalkboard-teacher"></i> {{ clase.instructor }}
+                        </span>
+                        {% if clase.is_hibrida and clase.meet_link %}
+                        <span class="detalle meet-link">
+                            <i class="fas fa-video"></i> 
+                            <a href="{{ clase.meet_link }}" target="_blank" class="meet-link-text">Google Meet</a>
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="clase-cupos">
+                        <span class="badge {% if clase.available_spots > 3 %}badge-success{% elif clase.available_spots > 0 %}badge-warning{% else %}badge-danger{% endif %}">
+                            <i class="fas fa-users"></i> {{ clase.available_spots }} cupos disponibles
+                        </span>
+                    </div>
+                </div>
+                
+                {% if estaLog %}
+                <form method="POST" action="{{ url_for('reservas') }}" class="form-reservar">
+                    <input type="hidden" name="event_id" value="{{ clase.event_id }}">
+                    
+                    {% if clases_restantes > 0 %}
+                        {% if clase.available_spots > 0 %}
+                        
+                        <!-- Opción de reserva múltiple -->
+                        {% if clases_restantes > 1 %}
+                        <div class="reserva-multiple">
+                            <p class="multiple-titulo">
+                                <i class="fas fa-calendar-week"></i>
+                                Reserva múltiple
+                            </p>
+                            <div class="multiple-opciones">
+                                <label class="multiple-label">
+                                    <input type="checkbox" name="reservas_multiples" value="true" 
+                                           class="multiple-checkbox" onchange="toggleSemanas(this)">
+                                    <span>Reservar también las próximas semanas</span>
+                                </label>
+                                
+                                <div class="semanas-selector" style="display: none; margin-top: 10px;">
+                                    <label for="semanas">Número de semanas:</label>
+                                    <select name="semanas" id="semanas" class="semanas-select">
+                                        <option value="2">2 semanas ({{ clase.fecha_dia }} próximo)</option>
+                                        <option value="3">3 semanas</option>
+                                        <option value="4">4 semanas</option>
+                                        <option value="5">5 semanas</option>
+                                        <option value="6">6 semanas</option>
+                                        <option value="7">7 semanas</option>
+                                        <option value="8">8 semanas</option>
+                                    </select>
+                                    <small class="semanas-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        Consumirás 1 clase por cada semana reservada
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <button type="submit" class="btn-reservar">
+                            <i class="fas fa-calendar-check"></i>
+                            Reservar
+                        </button>
+                        {% else %}
+                        <button type="button" class="btn-reservar btn-disabled" disabled>
+                            <i class="fas fa-times-circle"></i>
+                            Clase llena
+                        </button>
+                        {% endif %}
+                    {% else %}
+                    <a href="{{ url_for('paquetes') }}" class="btn-reservar btn-comprar">
+                        <i class="fas fa-credit-card"></i>
+                        Comprar clases
+                    </a>
+                    {% endif %}
+                </form>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn-reservar btn-login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Iniciar sesión
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="footer"></footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    
+    <script>
+        const rutas = {
+            index: "{{ url_for('index') }}",
+            reservas: "{{ url_for('reservas') }}",
+            contacto: "{{ url_for('contacto') }}",
+            instructor:"{{url_for('instructor')}}",
+            yogui:"{{url_for('yogui')}}",
+            login: "{{ url_for('login') }}",
+            admin: "{{url_for('admin')}}",
+            paquete:"{{url_for('paquetes')}}",
+            loginY: "{{ logYogui | tojson }}",
+            loginS: "{{ LogShala | tojson }}",
+            loginI: "{{ LogInst | tojson }}"
+        };
+
+        // Función para mostrar/ocultar selector de semanas
+        function toggleSemanas(checkbox) {
+            const selector = checkbox.closest('.multiple-opciones').querySelector('.semanas-selector');
+            if (checkbox.checked) {
+                selector.style.display = 'block';
+            } else {
+                selector.style.display = 'none';
+            }
+        }
+
+        // Validar antes de enviar el formulario
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr("#fecha", {
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                locale: "es",
+                disableMobile: "true"
+            });
+            
+            const hoy = new Date().toISOString().split('T')[0];
+            if (document.getElementById('fecha')) {
+                document.getElementById('fecha').min = hoy;
+            }
+            
+            document.getElementById('instructor')?.addEventListener('change', function() {
+                this.form.submit();
+            });
+            
+            document.querySelectorAll('form[method="POST"]').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const multipleCheckbox = this.querySelector('.multiple-checkbox');
+                    if (multipleCheckbox && multipleCheckbox.checked) {
+                        const semanasSelect = this.querySelector('#semanas');
+                        if (semanasSelect) {
+                            const semanas = parseInt(semanasSelect.value);
+                            const clasesRestantes = parseInt('{{ clases_restantes }}');
+                            
+                            if (semanas > clasesRestantes) {
+                                e.preventDefault();
+                                alert(`No tienes suficientes clases. Necesitas ${semanas} clases y tienes ${clasesRestantes}.`);
+                                return false;
+                            }
+                        }
+                    }
+                    
+                    if (!confirm('¿Confirmas la reserva de esta clase?')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <script src="static/js/header-footer-dinamico.js"></script>
+</body>
+</html>

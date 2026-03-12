@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧘</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/header-footer.css">
+    <link rel="stylesheet" href="static/css/registro-instructor.css">
+    <link rel="stylesheet" href="static/css/alerts.css">
+    <title>ZenFlow Yoga - Registro Instructores</title>
+</head>
+<body class="pagina-registro">
+    <header></header>
+    
+    <!-- Mensajes Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-flash">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <main class="main-registro">
+        <div class="formulario-registro">
+            <h1>Únete al equipo de ZenFlow Yoga</h1>
+            
+            <!-- DEBUG SIMPLE (puedes eliminarlo después) -->
+            <div class="debug-info">
+                Estado: {{ 'VERIFICADO' if session.get('correo_verificado_instructor') else 'NO VERIFICADO' }}
+            </div>
+            
+            <!-- Paso 1: Verificación de correo -->
+            <div class="step-container">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Verifica tu correo</h3>
+                    {% if session.get('correo_verificado_instructor') %}
+                    <span class="verification-badge">
+                        <ion-icon name="checkmark-circle"></ion-icon>
+                        Verificado
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <form action="{{ url_for('registroInstructor') }}" method="POST" id="form-verificacion">
+                    <div class="form-row">
+                        <div class="username" style="flex: 1;">
+                            <input type="email" name="correo" required 
+                                   value="{{ correo or session.get('correo_verificado_instructor', '') }}" 
+                                   {% if session.get('correo_verificado_instructor') %}readonly{% endif %}
+                                   id="correo">
+                            <label for="correo">Correo electrónico</label>
+                        </div>
+                        <div>
+                            {% if not session.get('correo_verificado_instructor') %}
+                            <button type="submit" name="accion" value="enviar_codigo" class="btn-enviar-codigo">
+                                {{ 'Reenviar código' if mostrar_codigo else 'Enviar código' }}
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Mostrar campo de código si hay código pendiente -->
+                    {% if mostrar_codigo and not session.get('correo_verificado_instructor') %}
+                    <div class="username" style="margin-top: 20px;">
+                        <input type="text" name="codigo" class="form-control" 
+                               value="{{ codigo_ingresado or '' }}"
+                               required maxlength="6" id="codigo">
+                        <label for="codigo">Código de verificación</label>
+                        <small class="helper-text">
+                            El código es válido por 10 minutos
+                        </small>
+                    </div>
+                    
+                    <button type="submit" name="accion" value="verificar_codigo" class="btn-verificar">
+                        Verificar código
+                    </button>
+                    {% endif %}
+                    
+                    {% if session.get('correo_verificado_instructor') %}
+                    <div class="verified-box">
+                        <p>
+                            <ion-icon name="checkmark-circle"></ion-icon>
+                            <strong>Correo verificado:</strong> {{ session.get('correo_verificado_instructor') }}
+                        </p>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+            
+            <!-- Paso 2: Subida de CV -->
+            <div class="step-container">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Sube tu currículum</h3>
+                </div>
+                
+                {% if session.get('correo_verificado_instructor') %}
+                <!-- FORMULARIO HABILITADO -->
+                <form action="{{ url_for('registroInstructor') }}" method="POST" enctype="multipart/form-data" id="form-cv">
+                    <input type="hidden" name="correo" value="{{ session.get('correo_verificado_instructor') }}">
+                    
+                    <div class="upload-section">
+                        <ion-icon name="document-attach-outline" class="upload-icon"></ion-icon>
+                        <h4>Sube tu currículum en PDF</h4>
+                        
+                        <div class="file-input-wrapper">
+                            <input type="file" id="cvFile" name="cv_pdf" accept=".pdf" required>
+                            <label for="cvFile" class="custom-file-btn">
+                                <ion-icon name="cloud-upload-outline"></ion-icon>
+                                Seleccionar archivo PDF
+                            </label>
+                        </div>
+                        
+                        <div class="file-name" id="fileName">
+                            No se ha seleccionado ningún archivo
+                        </div>
+                        
+                        <div class="file-requirements">
+                            <small>
+                                <ion-icon name="information-circle-outline"></ion-icon>
+                                Tamaño máximo: 5MB • Solo formato PDF
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" name="accion" value="completar_registro" class="btn-completar">
+                        Enviar currículum
+                    </button>
+                </form>
+                {% else %}
+                <!-- FORMULARIO DESHABILITADO -->
+                <div class="upload-section disabled">
+                    <ion-icon name="document-attach-outline" class="upload-icon disabled"></ion-icon>
+                    <h4>Primero verifica tu correo</h4>
+                    <p class="helper-text">
+                        Completa el paso 1 para habilitar la subida de tu currículum
+                    </p>
+                    <div class="file-requirements">
+                        <small>
+                            <ion-icon name="information-circle-outline"></ion-icon>
+                            Tamaño máximo: 5MB • Solo formato PDF
+                        </small>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn-completar disabled" disabled>
+                    Primero verifica tu correo
+                </button>
+                {% endif %}
+                
+                <div class="reset-link">
+                    <a href="{{ url_for('registroInstructor') }}?reset=1">
+                        <ion-icon name="arrow-back-outline"></ion-icon>
+                        Usar otro correo
+                    </a>
+                </div>
+            </div>
+            
+            <div class="ya-registrado">
+                ¿Ya tienes cuenta? <a href="{{ url_for('login')}}">Inicia sesión</a>
+            </div>
+        </div>
+
+        
+    </main>
+
+     <!-- Pie de pagina -->
+    <footer class="footer">
+        <!-- El footer se carga dinámicamente con JavaScript -->
+    </footer>
+    
+       <script>
+        const rutas = {
+            index: "{{ url_for('index') }}",
+            reservas: "{{ url_for('reservas') }}",
+            login: "{{ url_for('login') }}",
+            yogui:"{{url_for('yogui')}}",
+            admin: "{{url_for('admin')}}",
+            instructor:"{{url_for('instructor')}}",
+            contacto: "{{ url_for('contacto') }}",
+            paquete:"{{url_for('paquetes')}}"
+        };
+    </script>
+    
+    <!-- Script del header y footer -->
+    <script src="static/js/header-footer-dinamico.js"></script>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

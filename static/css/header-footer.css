@@ -1,0 +1,544 @@
+/* static/css/header-footer.css */
+/* Header */
+header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(138, 169, 164, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.back {
+    background: transparent;
+}
+
+.menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: color 0.3s ease;
+}
+
+.logo:hover {
+    color: var(--primary-color);
+}
+
+#menu {
+    display: none;
+}
+
+.menu-icono {
+    display: none;
+    width: 30px;
+    cursor: pointer;
+}
+
+.navbar ul {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+    align-items: center;
+}
+
+.navbar ul li a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding: 8px 16px;
+    border-radius: var(--border-radius-sm);
+    position: relative;
+}
+
+.navbar ul li a:hover {
+    color: var(--primary-dark);
+    background: var(--background-light);
+}
+
+.navbar ul li a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.navbar ul li a:hover::after {
+    width: 80%;
+}
+
+.boton-log {
+    background: var(--primary-color);
+    color: white !important;
+    padding: 8px 20px !important;
+    border-radius: 25px !important;
+    font-weight: 600 !important;
+}
+
+.boton-log:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.boton-log::after {
+    display: none;
+}
+
+/* Admin dropdown menu */
+.admin-menu-container {
+    position: relative;
+}
+
+.admin-btn {
+    background: var(--secondary-color) !important;
+    cursor: pointer;
+}
+
+.admin-dropdown-menu {
+    display: none !important; /* Importante: oculto por defecto */
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 1001;
+    border: 1px solid #e0e0e0;
+}
+
+.admin-dropdown-menu.show {
+    display: block !important; /* Importante: mostrar cuando tiene la clase show */
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.admin-dropdown-menu a {
+    color: #333 !important;
+    padding: 12px 16px !important;
+    text-decoration: none;
+    display: block;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #e0e0e0;
+    transition: background 0.3s ease;
+}
+
+.admin-dropdown-menu a:last-child {
+    border-bottom: none;
+}
+
+.admin-dropdown-menu a:hover {
+    background: #f5f5f5;
+    color: var(--primary-dark) !important;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+    .admin-dropdown-menu {
+        position: static;
+        margin-top: 10px;
+        box-shadow: none;
+        border: 1px solid #e0e0e0;
+        width: 100%;
+    }
+}
+
+/* Footer */
+.footer {
+    background: var(--background-white);
+    padding: 40px 0 20px;
+    margin-top: 60px;
+    box-shadow: 0 -2px 20px rgba(138, 169, 164, 0.1);
+}
+
+.social-icon {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    list-style: none;
+    margin-bottom: 30px;
+    padding: 0 20px;
+}
+
+.icon-elem {
+    width: 45px;
+    height: 45px;
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: var(--background-light);
+    color: var(--primary-dark);
+    font-size: 1.3rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.icon:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+}
+
+.menu-footer {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    list-style: none;
+    margin-bottom: 25px;
+    padding: 0 20px;
+}
+
+.menu-elem .menu-icon {
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.menu-elem .menu-icon:hover {
+    color: var(--primary-dark);
+}
+
+.menu-elem .menu-icon::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.menu-elem .menu-icon:hover::after {
+    width: 100%;
+}
+
+.text-footer {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    padding: 0 20px;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+    .menu {
+        padding: 10px 20px;
+    }
+    
+    .logo {
+        font-size: 1.5rem;
+    }
+    
+    .menu-icono {
+        display: block;
+    }
+    
+    .navbar {
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    #menu:checked ~ .navbar {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .navbar ul {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .navbar ul li {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .navbar ul li a {
+        display: block;
+        padding: 10px;
+    }
+    
+    .admin-dropdown-menu {
+        position: static;
+        margin-top: 10px;
+        box-shadow: none;
+        border: 1px solid var(--border-color);
+    }
+    
+    .menu-footer {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .social-icon {
+        gap: 15px;
+    }
+    
+    .icon-elem {
+        width: 40px;
+        height: 40px;
+    }
+}
+/* Agrega esto a tu archivo CSS */
+footer {
+    width: 100%;
+    display: block;
+    visibility: visible;
+    opacity: 1;
+}
+
+.social-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+}
+
+.icon-elem {
+    margin: 0 10px;
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Asegurar que los iconos sean visibles en responsive */
+@media (max-width: 768px) {
+    .social-icon {
+        flex-wrap: wrap;
+    }
+    
+    .icon-elem {
+        margin: 5px;
+    }
+    
+    ion-icon {
+        font-size: 24px; /* Ajusta el tamaño según necesites */
+        display: block;
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+/* Estilos para notificaciones */
+.notificacion-sesion {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    max-width: 400px;
+    animation: notificacionEntrada 0.5s ease forwards;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.notificacion-contenido {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    background: white;
+    border-left: 4px solid;
+    gap: 15px;
+}
+
+.notificacion-exito .notificacion-contenido {
+    border-left-color: #4CAF50;
+}
+
+.notificacion-info .notificacion-contenido {
+    border-left-color: #2196F3;
+}
+
+.notificacion-icono {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.notificacion-exito .notificacion-icono {
+    background: #e8f5e8;
+    color: #4CAF50;
+}
+
+.notificacion-info .notificacion-icono {
+    background: #e3f2fd;
+    color: #2196F3;
+}
+
+.notificacion-texto {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.notificacion-texto strong {
+    font-size: 1rem;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.notificacion-texto span {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.notificacion-cerrar {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: #999;
+    transition: color 0.3s ease;
+}
+
+.notificacion-cerrar:hover {
+    color: #333;
+}
+
+.notificacion-salida {
+    animation: notificacionSalida 0.5s ease forwards;
+}
+
+@keyframes notificacionEntrada {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes notificacionSalida {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Ajustes responsive para notificaciones */
+@media screen and (max-width: 768px) {
+    .notificacion-sesion {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+    }
+    
+    .notificacion-contenido {
+        padding: 12px 15px;
+    }
+    
+    .notificacion-icono {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+}
+
+/* Asegurar que el menú hamburguesa funcione correctamente */
+#menu:checked ~ .navbar {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.navbar {
+    transition: all 0.3s ease;
+}
+
+/* Mejoras para el menú desplegable en responsive */
+@media screen and (max-width: 768px) {
+    .admin-dropdown-menu {
+        position: static;
+        margin-top: 10px;
+        box-shadow: none;
+        border: 1px solid var(--border-color);
+        width: 100%;
+    }
+    
+    .admin-menu-container {
+        width: 100%;
+    }
+    
+    .admin-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Ajuste para el ícono del menú hamburguesa */
+.menu-icono {
+    filter: brightness(0) invert(0.3);
+    transition: transform 0.3s ease;
+}
+
+#menu:checked + label .menu-icono {
+    transform: rotate(90deg);
+}
