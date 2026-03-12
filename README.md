@@ -80,3 +80,159 @@
 - **Aiven Cloud** - Hosting de base de datos MySQL
 
 ## 📁 Estructura del Proyecto
+
+ZenFlow-Yoga/
+├── app.py # Punto de entrada principal
+├── requirements.txt # Dependencias
+├── .env.example # Variables de entorno (ejemplo)
+├── README.md # Este archivo
+│
+├── Operaciones/ # Lógica de negocio
+│ ├── init.py
+│ ├── yogui.py # Clase Yogui
+│ ├── instructor.py # Clase Instructor
+│ ├── shala.py # Clase Admin
+│ ├── reserva.py # Clase Reservas
+│ ├── ValidacionesInfo.py # Validaciones
+│ ├── ClasePadre.py # Clase base
+│ │
+│ ├── CRUD/ # Operaciones de base de datos
+│ │ ├── conexionMySQL.py
+│ │ ├── Leer.py
+│ │ ├── Agregar.py
+│ │ ├── Editar.py
+│ │ └── Borrar.py
+│ │
+│ └── Scripts/ # Integraciones externas
+│ ├── google_services.py # Google Calendar API
+│ ├── Gmail.py # Envío de emails
+│ ├── codigos.py # Generación de códigos
+│ ├── curriculum.py # Procesamiento de CV
+│ ├── Reportes.py # Generación de PDF
+│ └── cache_manager.py # Sistema de caché
+│
+├── templates/ # Plantillas HTML
+│ ├── index.html
+│ ├── login.html
+│ ├── registro.html
+│ ├── registroInstructor.html
+│ ├── reservas.html
+│ ├── paquetes.html
+│ ├── yogui.html
+│ ├── instructor.html
+│ ├── admin.html
+│ └── contacto.html
+│
+├── static/ # Archivos estáticos
+│ ├── css/
+│ │ ├── base.css
+│ │ ├── header-footer.css
+│ │ ├── login.css
+│ │ ├── registro.css
+│ │ └── ...
+│ └── js/
+│ ├── header-footer-dinamico.js
+│ └── script.js
+│
+├── credentials/ # Credenciales de Google (no subir)
+│ ├── credentials.json.example
+│ └── service-account.json.example
+│
+└── tests/ # Pruebas unitarias
+├── init.py
+├── test_validaciones.py
+├── test_login.py
+└── conftest.py
+
+
+## 🚀 Instalación y Configuración
+
+### Requisitos Previos
+- Python 3.9 o superior
+- MySQL 8.0
+- Cuenta de Google Cloud con Calendar y Gmail API habilitadas
+- Git
+
+### Pasos de Instalación
+
+1. **Clonar el repositorio**
+   ```bash
+   git clone https://github.com/tuusuario/zenflow-yoga.git
+   cd zenflow-yoga
+
+pip install -r requirements.txt
+
+# Colocar credentials.json en la carpeta credentials/
+# Colocar service-account.json en la carpeta credentials/
+
+## Ejecutar
+python app.py
+
+Acceder a la aplicacion
+http://localhost:5001
+
+## Estructura de la base de datos
+
+-- Tabla de Yoguis (alumnos)
+CREATE TABLE Yoguis (
+    Correo VARCHAR(50) PRIMARY KEY,
+    Password VARCHAR(100) NOT NULL,
+    Nombre VARCHAR(50) NOT NULL,
+    Apellido VARCHAR(50) NOT NULL,
+    Telefono DECIMAL(10,0) NOT NULL,
+    PaqueteID INT,
+    clasesRestantes INT DEFAULT 0
+);
+
+-- Tabla de Instructores
+CREATE TABLE Instructores (
+    id_instructor INT AUTO_INCREMENT PRIMARY KEY,
+    correo VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    especialidad VARCHAR(100),
+    telefono VARCHAR(20) NOT NULL,
+    experiencia INT,
+    estado VARCHAR(20) DEFAULT 'activo',
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    bio TEXT,
+    foto VARCHAR(255)
+);
+
+-- Tabla de Administradores
+CREATE TABLE Administradores (
+    Correo VARCHAR(100) PRIMARY KEY,
+    Password VARCHAR(100) NOT NULL,
+    Nombre VARCHAR(100) NOT NULL,
+    Apellido VARCHAR(100) NOT NULL,
+    Telefono decimal(10,0)
+);
+
+-- Tabla de Paquetes
+CREATE TABLE paquetes (
+    ID VARCHAR(20) PRIMARY KEY,
+    Precio DECIMAL(10,2) NOT NULL,
+    dias INT NOT NULL
+);
+
+-- Tabla de Pagos
+CREATE TABLE Pagos (
+    id_pago INT AUTO_INCREMENT PRIMARY KEY,
+    Correo VARCHAR(100) NOT NULL,
+    Referencia VARCHAR(100) NOT NULL,
+    EstadoDePago VARCHAR(20) DEFAULT 'pendiente',
+    paqueteID VARCHAR(20) NOT NULL,
+    monto DECIMAL(10,2) NOT NULL,
+    fecha_pago TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    metodo_pago VARCHAR(50),
+    FOREIGN KEY (Correo) REFERENCES Yoguis(Correo),
+    FOREIGN KEY (paqueteID) REFERENCES paquetes(ID)
+);
+
+
+📞 Contacto
+Desarrollador: Juan Rivas
+
+📧 Email: rivas.alvarez.juan@gmail.com
+
+
