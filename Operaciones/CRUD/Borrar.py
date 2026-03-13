@@ -24,9 +24,6 @@ def eliminarYogui(correo):
         
         nombre_usuario = user_data[1]
         
-        # Primero eliminar reservas del usuario
-        cursor.execute("DELETE FROM Reservas WHERE correo = %s", (correo,))
-        # Luego eliminar el usuario
         cursor.execute("DELETE FROM Yoguis WHERE Correo = %s", (correo,))
         commit()
         
@@ -117,14 +114,12 @@ def eliminarYoguiCompleto(correo):
             return False, "Usuario no encontrado"
         
         nombre_usuario = usuario[0]
-        
-        # 1. Eliminar reservas del usuario (si es que las tiene)
-        try:
-            cursor.execute("DELETE FROM Reservas WHERE correo = %s", (correo,))
-        except:
-            pass  # Si no existe la tabla, continuamos
-        
+            
         # 2. Eliminar pagos pendientes del usuario
+        clases_id = get_user_events(correo, days_ahead= 365)
+        for id in clases_id:
+            remove_attendee_from_event(id, correo)
+        
         try:
             cursor.execute("DELETE FROM Pagos WHERE Correo = %s", (correo,))
         except:
